@@ -29,6 +29,13 @@ class ServicePayload {
   final String hours; // "09:00 - 18:00"
 
   final String location;
+
+  /// Coordinates of the selected business address, resolved through the same
+  /// Google Places lookup a Transport user goes through for a trip's
+  /// pickup/delivery point. Null when the address was typed by hand.
+  final double? latitude;
+  final double? longitude;
+
   final String? phone;
   final String? email;
 
@@ -60,6 +67,8 @@ class ServicePayload {
     required this.days,
     required this.hours,
     required this.location,
+    this.latitude,
+    this.longitude,
     this.phone,
     this.email,
     this.existingImages = const [],
@@ -112,6 +121,8 @@ class ServicePayload {
       days: days,
       hours: hours,
       location: location,
+      latitude: latitude,
+      longitude: longitude,
       phone: phone,
       email: email,
       existingImages: existingImages,
@@ -160,6 +171,11 @@ class ServicePayload {
       'pricing': pricing,
       'availability': {'days': days, 'hours': hours},
       'location': location,
+      // Always sent, null included. On edit this is what clears a stale pin
+      // when the provider retypes the address without picking a place —
+      // omitting the keys would leave PATCH pointing at the previous shop.
+      'latitude': latitude,
+      'longitude': longitude,
       'contactInfo': {
         if (phone != null && phone!.isNotEmpty) 'phone': phone,
         if (email != null && email!.isNotEmpty) 'email': email,

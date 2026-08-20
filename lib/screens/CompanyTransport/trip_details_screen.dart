@@ -473,7 +473,14 @@ class _TripMetricsSectionState extends State<_TripMetricsSection> {
   double? _efficiency;
   double? _distanceKm;
 
-  bool get _completed => widget.trip.tripStatus.toLowerCase() == 'completed';
+  /// Whether this trip belongs to the Completed tab.
+  ///
+  /// Uses the SAME canonical bucketing the Trips list uses to decide the trip
+  /// is completed. A literal `status == 'completed'` check disagreed with it:
+  /// a finished trip sits in `pod-collected`, `pod-verified` or one of the
+  /// `payment-*` states far more often than in `completed`, so it was listed
+  /// under Completed but opened without any Trip Efficiency.
+  bool get _completed => tripStatusBucket(widget.trip.tripStatus) == 'completed';
 
   @override
   void initState() {

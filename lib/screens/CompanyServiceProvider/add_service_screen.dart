@@ -86,6 +86,25 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       PlacesService(apiKey: MapsConstants.googleMapsApiKey);
   List<Suggestion> _suggestions = [];
 
+  /// Coordinates of the picked business address.
+  ///
+  /// Resolved by the same `PlacesService.fetchPlaceLocation` call the Transport
+  /// new-trip screen makes after a pickup/delivery suggestion is tapped, so a
+  /// service listing is located exactly the way a trip endpoint is.
+  double? _latitude;
+  double? _longitude;
+
+  /// True while the Place Details lookup for the tapped suggestion is in
+  /// flight, so Save can wait rather than persisting the address without its
+  /// coordinates.
+  bool _resolvingLocation = false;
+
+  /// The in-flight Place Details lookup, awaited by Save so a listing is never
+  /// written with the address but without its coordinates.
+  Future<void>? _pendingLocationLookup;
+
+  bool get _hasCoordinates => _latitude != null && _longitude != null;
+
   // Canonical category options (per the design spec).
   List<String> _categoryOptions = const [
     'Brake Service',
@@ -137,6 +156,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     _priceCtrl.text = s.amount?.toString() ?? '';
     _cityCtrl.text = s.city;
     _addressCtrl.text = s.fullAddress;
+    // Keep the existing pin so re-saving an unchanged address does not drop it.
+    // Null for listings created before the address was resolvable.
+    _latitude = s.latitude;
+    _longitude = s.longitude;
     _descLen = _descriptionCtrl.text.length;
 
     // Pricing type — normalize legacy values to the web set.
@@ -389,6 +412,80 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     );
   }
 
+  /// Accept a Places suggestion and resolve it to coordinates.
+  ///
+  /// Identical two-step flow to the Transport new-trip screen: fill the field
+  /// from the prediction immediately so the UI never stalls, then look the
+  /// place up via `fetchPlaceLocation(placeId)` for the exact lat/lng. The
+  /// address is kept either way — only the pin is lost if the lookup fails.
+  void _selectSuggestion(Suggestion s) {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      _addressCtrl.text = s.description;
+      if (s.city.isNotEmpty) _cityCtrl.text = s.city;
+      _suggestions = [];
+      _latitude = null;
+      _longitude = null;
+      _resolvingLocation = true;
+    });
+    // Held so Save can await exactly this lookup instead of racing it.
+    _pendingLocationLookup = _resolvePlace(s.placeId);
+  }
+
+  Future<void> _resolvePlace(String placeId) async {
+    try {
+      final loc = await _places.fetchPlaceLocation(placeId);
+      if (!mounted) return;
+      setState(() {
+        _latitude = loc?['lat'];
+        _longitude = loc?['lng'];
+        _resolvingLocation = false;
+      });
+    } catch (e) {
+      AppLogger.e('Error fetching place location: $e');
+      if (!mounted) return;
+      setState(() => _resolvingLocation = false);
+    }
+  }
+
+  /// Shows what was resolved for the chosen address, so the provider can see
+  /// the listing is actually pinned rather than trusting it silently.
+  Widget _locationStatus() {
+    if (!_resolvingLocation && !_hasCoordinates) return const SizedBox.shrink();
+
+    final resolving = _resolvingLocation;
+    final color = resolving ? AppPalette.textGrey : AppPalette.green;
+
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Row(
+        children: [
+          if (resolving)
+            const SizedBox(
+              width: 13,
+              height: 13,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          else
+            Icon(Iconsax.gps, size: 14, color: color),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              resolving
+                  ? 'Locating address…'
+                  : 'Location pinned · '
+                      '${_latitude!.toStringAsFixed(6)}, '
+                      '${_longitude!.toStringAsFixed(6)}',
+              style: AppText.caption.on(color),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _locationSection() {
     return _sectionCard(
       title: 'Location',
@@ -404,6 +501,15 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             suffix: const Icon(Iconsax.location, color: AppPalette.primary, size: 20),
           ),
           onChanged: (value) async {
+            // Typing over a resolved address invalidates its pin — the text no
+            // longer describes the place those coordinates point at. Drop them
+            // so a stale location can never be saved silently.
+            if (_hasCoordinates) {
+              setState(() {
+                _latitude = null;
+                _longitude = null;
+              });
+            }
             if (value.isEmpty) {
               setState(() => _suggestions = []);
               return;
@@ -416,6 +522,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             }
           },
         ),
+        _locationStatus(),
         if (_suggestions.isNotEmpty)
           Container(
             margin: const EdgeInsets.only(top: AppSpacing.sm),
@@ -446,14 +553,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                           style: AppText.caption,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis),
-                  onTap: () {
-                    setState(() {
-                      _addressCtrl.text = s.description;
-                      if (s.city.isNotEmpty) _cityCtrl.text = s.city;
-                      _suggestions = [];
-                    });
-                    FocusScope.of(context).unfocus();
-                  },
+                  onTap: () => _selectSuggestion(s),
                 );
               },
             ),
@@ -890,6 +990,14 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   Future<void> _save({required bool publish}) async {
     if (!_formKey.currentState!.validate()) return;
 
+    // A just-tapped address may still be resolving. Awaiting it here is the
+    // difference between saving the listing with its pin and saving the text
+    // alone — the lookup is already bounded by its own request timeout.
+    if (_pendingLocationLookup != null) {
+      await _pendingLocationLookup;
+      if (!mounted) return;
+    }
+
     if (_selectedCategories.isEmpty) {
       SnackBarHelper.error('Please select at least one category');
       return;
@@ -939,6 +1047,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       days: _selectedDays.toList(),
       hours: '$_from - $_to',
       location: location,
+      latitude: _latitude,
+      longitude: _longitude,
       phone: _contactCtrl.text.trim(),
       email: null,
       existingImages: _existingImages,

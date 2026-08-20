@@ -30,6 +30,12 @@ class ServiceModel {
   final String? flagReason;
   final bool isFlagged;
 
+  /// Coordinates of the business address, resolved from the Google Place the
+  /// provider selected. Null when the listing predates the Places flow or the
+  /// address was typed by hand — never 0, which would be a real location.
+  final double? latitude;
+  final double? longitude;
+
   ServiceModel({
     required this.serviceId,
     required this.serviceTitle,
@@ -57,6 +63,8 @@ class ServiceModel {
     this.rating,
     this.flagReason,
     this.isFlagged = false,
+    this.latitude,
+    this.longitude,
   });
 
   factory ServiceModel.fromJson(Map<String, dynamic> json) {
@@ -125,6 +133,8 @@ class ServiceModel {
       rating: (json['rating'] as num?)?.toDouble(),
       flagReason: json['flagReason']?.toString(),
       isFlagged: json['isFlagged'] == true || statusStr.toLowerCase() == 'flagged',
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
     );
   }
 
@@ -156,6 +166,8 @@ class ServiceModel {
       rating: other.rating ?? rating,
       flagReason: other.flagReason ?? flagReason,
       isFlagged: other.isFlagged,
+      latitude: other.latitude ?? latitude,
+      longitude: other.longitude ?? longitude,
     );
   }
 
