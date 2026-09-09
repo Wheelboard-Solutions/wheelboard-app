@@ -105,6 +105,18 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   bool get _hasCoordinates => _latitude != null && _longitude != null;
 
+  /// Manual address / coordinate entry, for the cases the Places search cannot
+  /// serve: a workshop on an unmapped road, a yard Google pins in the wrong
+  /// place, a provider who already knows their exact coordinates, or Places
+  /// being unavailable at all (no API key, offline, quota).
+  ///
+  /// A separate mode rather than extra always-visible fields: with both a
+  /// resolved place AND typed coordinates on screen there is no way to tell
+  /// which one the listing is saved with. Exactly one is live at a time.
+  bool _manualLocation = false;
+  final _latCtrl = TextEditingController();
+  final _lngCtrl = TextEditingController();
+
   // Canonical category options (per the design spec).
   List<String> _categoryOptions = const [
     'Brake Service',
@@ -160,6 +172,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     // Null for listings created before the address was resolvable.
     _latitude = s.latitude;
     _longitude = s.longitude;
+    _latCtrl.text = s.latitude?.toString() ?? '';
+    _lngCtrl.text = s.longitude?.toString() ?? '';
+    // A listing that has an address but no pin was either typed in by hand or
+    // predates the Places flow — there is no place to restore. Open it in the
+    // mode it was saved in; anything else opens in Places mode.
+    _manualLocation = s.fullAddress.trim().isNotEmpty && !_hasCoordinates;
     _descLen = _descriptionCtrl.text.length;
 
     // Pricing type — normalize legacy values to the web set.
@@ -222,6 +240,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     _detailsCtrl.dispose();
     _cityCtrl.dispose();
     _addressCtrl.dispose();
+    _latCtrl.dispose();
+    _lngCtrl.dispose();
     super.dispose();
   }
 
@@ -486,44 +506,201 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     );
   }
 
+  /// Switch between searching Places and typing the address and coordinates in.
+  ///
+  /// Whatever the provider had entered carries across in both directions, so
+  /// flipping the mode never silently discards their work: a resolved pin seeds
+  /// the coordinate fields, and a complete manual pair becomes the listing's
+  /// resolved pin.
+  void _toggleManualLocation() {
+    FocusScope.of(context).unfocus();
+    setState(() {
+      if (!_manualLocation) {
+        _latCtrl.text = _latitude?.toString() ?? '';
+        _lngCtrl.text = _longitude?.toString() ?? '';
+        // No half-resolved lookup should survive into manual mode: it would
+        // land its coordinates on top of whatever is typed here.
+        _pendingLocationLookup = null;
+        _resolvingLocation = false;
+        _suggestions = [];
+        _manualLocation = true;
+        return;
+      }
+
+      // Back to Places. A complete, valid manual pair keeps its pin; anything
+      // else has nothing to hand over.
+      final parsed = _parseManualCoordinates();
+      _latitude = parsed.error == null ? parsed.latitude : null;
+      _longitude = parsed.error == null ? parsed.longitude : null;
+      _manualLocation = false;
+    });
+  }
+
+  /// Read the hand-typed coordinate pair.
+  ///
+  /// Both fields empty is a valid answer — the provider gave an address without
+  /// a pin, exactly as a listing saved before the Places flow. Anything else
+  /// must be a complete, in-range pair: half a coordinate is not a location,
+  /// and an out-of-range value is a typo, not a place. Zero is a real
+  /// coordinate and is preserved as one.
+  ({double? latitude, double? longitude, String? error})
+  _parseManualCoordinates() {
+    final lat = _latCtrl.text.trim();
+    final lng = _lngCtrl.text.trim();
+
+    if (lat.isEmpty && lng.isEmpty) {
+      return (latitude: null, longitude: null, error: null);
+    }
+    if (lat.isEmpty || lng.isEmpty) {
+      return (
+        latitude: null,
+        longitude: null,
+        error: 'Enter both latitude and longitude, or leave both blank.',
+      );
+    }
+
+    final latitude = double.tryParse(lat);
+    final longitude = double.tryParse(lng);
+    if (latitude == null || longitude == null) {
+      return (
+        latitude: null,
+        longitude: null,
+        error: 'Latitude and longitude must be numbers, e.g. 19.076090.',
+      );
+    }
+    if (latitude < -90 || latitude > 90) {
+      return (
+        latitude: null,
+        longitude: null,
+        error: 'Latitude must be between -90 and 90.',
+      );
+    }
+    if (longitude < -180 || longitude > 180) {
+      return (
+        latitude: null,
+        longitude: null,
+        error: 'Longitude must be between -180 and 180.',
+      );
+    }
+
+    return (latitude: latitude, longitude: longitude, error: null);
+  }
+
+  /// The manual pair's problem, or null when it is fine (including both blank).
+  ///
+  /// Only applies in manual mode: in Places mode the coordinates come from the
+  /// picked place and these fields are not on screen.
+  String? _manualCoordinateError() =>
+      _manualLocation ? _parseManualCoordinates().error : null;
+
   Widget _locationSection() {
     return _sectionCard(
       title: 'Location',
       icon: Iconsax.location,
       children: [
-        Text('Business Address', style: AppText.label),
-        const SizedBox(height: 6),
-        TextFormField(
-          controller: _addressCtrl,
-          style: AppText.body.on(AppPalette.textDark),
-          decoration: _inputDecoration(
-            hint: 'Search for your business address',
-            suffix: const Icon(Iconsax.location, color: AppPalette.primary, size: 20),
-          ),
-          onChanged: (value) async {
-            // Typing over a resolved address invalidates its pin — the text no
-            // longer describes the place those coordinates point at. Drop them
-            // so a stale location can never be saved silently.
-            if (_hasCoordinates) {
-              setState(() {
-                _latitude = null;
-                _longitude = null;
-              });
-            }
-            if (value.isEmpty) {
-              setState(() => _suggestions = []);
-              return;
-            }
-            try {
-              final results = await _places.fetchSuggestions(value);
-              if (mounted) setState(() => _suggestions = results);
-            } catch (e) {
-              AppLogger.e('Error fetching address suggestions: $e');
-            }
-          },
+        Row(
+          children: [
+            Text('Business Address', style: AppText.label),
+            const Spacer(),
+            GestureDetector(
+              onTap: _toggleManualLocation,
+              child: Text(
+                _manualLocation ? 'Search with Maps' : 'Enter manually',
+                style: AppText.caption.on(AppPalette.primary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
         ),
-        _locationStatus(),
-        if (_suggestions.isNotEmpty)
+        const SizedBox(height: 6),
+        if (_manualLocation) ...[
+          TextFormField(
+            controller: _addressCtrl,
+            style: AppText.body.on(AppPalette.textDark),
+            decoration: _inputDecoration(
+              hint: 'Shop 4, MIDC Road, Bhiwandi, Maharashtra',
+              suffix: const Icon(
+                Iconsax.location,
+                color: AppPalette.primary,
+                size: 20,
+              ),
+            ),
+          ),
+          AppSpacing.vGapMd,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _field(
+                  label: 'Latitude',
+                  controller: _latCtrl,
+                  hint: '19.076090',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  // The pair is validated as a whole — half a coordinate is not
+                  // a location — so both fields report the same verdict, and
+                  // `_save` re-checks it as the authority.
+                  validator: (_) => _manualCoordinateError(),
+                ),
+              ),
+              AppSpacing.hGapMd,
+              Expanded(
+                child: _field(
+                  label: 'Longitude',
+                  controller: _lngCtrl,
+                  hint: '72.877426',
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                    signed: true,
+                  ),
+                  validator: (_) => _manualCoordinateError(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Coordinates are optional, but entering them lets customers '
+            'navigate straight to you. Leave both blank to save the address on '
+            'its own.',
+            style: AppText.caption,
+          ),
+        ] else ...[
+          TextFormField(
+            controller: _addressCtrl,
+            style: AppText.body.on(AppPalette.textDark),
+            decoration: _inputDecoration(
+              hint: 'Search for your business address',
+              suffix: const Icon(Iconsax.location, color: AppPalette.primary, size: 20),
+            ),
+            onChanged: (value) async {
+              // Typing over a resolved address invalidates its pin — the text
+              // no longer describes the place those coordinates point at. Drop
+              // them so a stale location can never be saved silently.
+              if (_hasCoordinates) {
+                setState(() {
+                  _latitude = null;
+                  _longitude = null;
+                });
+              }
+              if (value.isEmpty) {
+                setState(() => _suggestions = []);
+                return;
+              }
+              try {
+                final results = await _places.fetchSuggestions(value);
+                if (mounted) setState(() => _suggestions = results);
+              } catch (e) {
+                AppLogger.e('Error fetching address suggestions: $e');
+              }
+            },
+          ),
+          _locationStatus(),
+        ],
+        if (!_manualLocation && _suggestions.isNotEmpty)
           Container(
             margin: const EdgeInsets.only(top: AppSpacing.sm),
             constraints: const BoxConstraints(maxHeight: 200),
@@ -990,12 +1167,27 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   Future<void> _save({required bool publish}) async {
     if (!_formKey.currentState!.validate()) return;
 
-    // A just-tapped address may still be resolving. Awaiting it here is the
-    // difference between saving the listing with its pin and saving the text
-    // alone — the lookup is already bounded by its own request timeout.
-    if (_pendingLocationLookup != null) {
+    // In manual mode the typed coordinates are the listing's pin. Validated
+    // before anything else is done so a typo is reported next to the fields
+    // that caused it, rather than after a payment or an upload.
+    double? latitude = _latitude;
+    double? longitude = _longitude;
+    if (_manualLocation) {
+      final parsed = _parseManualCoordinates();
+      if (parsed.error != null) {
+        SnackBarHelper.error(parsed.error!);
+        return;
+      }
+      latitude = parsed.latitude;
+      longitude = parsed.longitude;
+    } else if (_pendingLocationLookup != null) {
+      // A just-tapped address may still be resolving. Awaiting it here is the
+      // difference between saving the listing with its pin and saving the text
+      // alone — the lookup is already bounded by its own request timeout.
       await _pendingLocationLookup;
       if (!mounted) return;
+      latitude = _latitude;
+      longitude = _longitude;
     }
 
     if (_selectedCategories.isEmpty) {
@@ -1047,8 +1239,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       days: _selectedDays.toList(),
       hours: '$_from - $_to',
       location: location,
-      latitude: _latitude,
-      longitude: _longitude,
+      latitude: latitude,
+      longitude: longitude,
       phone: _contactCtrl.text.trim(),
       email: null,
       existingImages: _existingImages,

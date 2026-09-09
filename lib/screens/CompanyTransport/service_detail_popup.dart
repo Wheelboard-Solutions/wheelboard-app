@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 
 import '../../controllers/Transport/company_booking_controller.dart';
 import '../../controllers/Transport/fleet_controller.dart';
+import '../../controllers/Transport/service_controller.dart';
 import '../../models/service_model.dart';
 import '../../models/get_vehicle_model.dart';
 import 'package:wheelboard/core/auth/auth_service.dart';
@@ -36,6 +37,12 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
   bool _isManualEntry = false;
   late final DriverController _fleetController;
 
+  /// Where the Service Location field's contents came from, so the form can say
+  /// so instead of leaving the company guessing whose address they are looking
+  /// at. Flips to false the moment they type over it.
+  bool _locationFromService = false;
+  bool _fetchingLocation = false;
+
   @override
   void initState() {
     super.initState();
@@ -47,15 +54,70 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
     _dateController = TextEditingController();
     _timeController = TextEditingController();
     _vehicleController = TextEditingController();
-    _locationController = TextEditingController(
-      text: widget.service.location ??
-          (widget.service.city.isNotEmpty ? widget.service.city : ''),
-    );
+    _locationController = TextEditingController(text: _serviceAddress);
+    _locationFromService = _locationController.text.isNotEmpty;
     _descriptionController = TextEditingController();
 
     // Initialize fleet controller and fetch vehicles
     _fleetController = DriverController.shared;
     _loadVehicles();
+    _ensureServiceLocation();
+  }
+
+  /// The address the provider published for this service.
+  ///
+  /// `fullAddress` and `location` are the same value from the API; the city is
+  /// the last resort, and an empty string means the listing genuinely has no
+  /// address rather than that one failed to load.
+  String get _serviceAddress {
+    final address = (widget.service.location ?? widget.service.fullAddress).trim();
+    if (address.isNotEmpty) return address;
+    return widget.service.city.trim();
+  }
+
+  /// Fill Service Location from the service being assigned.
+  ///
+  /// The provider already gave Wheelboard this address when they published the
+  /// listing, so making the company retype it is asking for data we hold — and
+  /// whatever they type is where the provider is dispatched to. The popup is
+  /// normally opened from the service detail screen, which has loaded the full
+  /// listing; this covers the case where it was opened from a summary that
+  /// carried no address, by fetching the listing once.
+  ///
+  /// Only ever fills a blank field: a company edit is never overwritten.
+  Future<void> _ensureServiceLocation() async {
+    if (_locationController.text.trim().isNotEmpty) return;
+
+    final serviceId = widget.service.serviceId;
+    if (serviceId.isEmpty) return;
+
+    setState(() => _fetchingLocation = true);
+    try {
+      final controller = Get.isRegistered<ServiceController>()
+          ? Get.find<ServiceController>()
+          : Get.put(ServiceController());
+      await controller.fetchServiceDetail(serviceId);
+      final detail = controller.getServiceById(serviceId) ??
+          controller.selectedService.value;
+      final address = ((detail?.location ?? detail?.fullAddress ?? '').trim())
+          .isNotEmpty
+          ? (detail!.location ?? detail.fullAddress).trim()
+          : (detail?.city ?? '').trim();
+
+      if (!mounted) return;
+      setState(() {
+        // Re-checked after the await: the company may have typed while it was
+        // in flight, and their answer wins.
+        if (address.isNotEmpty && _locationController.text.trim().isEmpty) {
+          _locationController.text = address;
+          _locationFromService = true;
+        }
+        _fetchingLocation = false;
+      });
+    } catch (_) {
+      // The field stays empty and required — the company can still type one.
+      if (mounted) setState(() => _fetchingLocation = false);
+    }
   }
 
   Future<void> _loadVehicles() async {
@@ -469,15 +531,42 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _locationController,
+                  onChanged: (_) {
+                    // Typed over: it is the company's address now, not the
+                    // provider's, and the note below must stop claiming
+                    // otherwise.
+                    if (_locationFromService) {
+                      setState(() => _locationFromService = false);
+                    }
+                  },
                   decoration: InputDecoration(
-                    hintText: "e.g. Workshop, Highway milestone, etc.",
+                    hintText: _fetchingLocation
+                        ? "Fetching the service's address…"
+                        : "e.g. Workshop, Highway milestone, etc.",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    suffixIcon: _fetchingLocation
+                        ? const Padding(
+                            padding: EdgeInsets.all(12),
+                            child: SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          )
+                        : null,
                   ),
                   validator: (v) => (v == null || v.trim().isEmpty)
                       ? 'Please enter the location for the service'
                       : null,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _locationFromService
+                      ? 'Filled in from ${widget.service.businessName.isNotEmpty ? widget.service.businessName : "the provider"}\'s listed address. Change it if the service is needed elsewhere.'
+                      : 'This provider has not listed an address, so enter where the service is needed.',
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF6B7280)),
                 ),
                 const SizedBox(height: 16),
                 const Text(

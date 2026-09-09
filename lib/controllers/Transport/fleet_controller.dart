@@ -1000,10 +1000,11 @@ class DriverController extends GetxController {
     return RcVerifyResult.from(result);
   }
 
-  /// Verify a driver's licence from the uploaded licence document.
+  /// Verify a driver's licence from a photo of the licence.
   ///
-  /// Replaces the old licence-number + date-of-birth lookup: the current
-  /// provider contract reads every field from the document itself.
+  /// The ONLY automatic licence path — the provider reads the licence out of
+  /// the image and sells no number + date-of-birth lookup. Used by both KYC
+  /// (the holder's own licence) and the Add Driver form.
   Future<VerificationResult<DrivingLicenceData>> verifyDriverLicenceDocument(
     File document,
   ) {

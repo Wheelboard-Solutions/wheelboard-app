@@ -251,10 +251,13 @@ class _FleetEndpoints {
   // DELETE /fleet/drivers/:id
   String deleteDriver(String id) => '/fleet/drivers/$id';
 
+  // GET    /fleet/drivers/verify/license?licenseNumber=&dateOfBirth=
   // POST   /fleet/drivers/verify/license   multipart/form-data, field `document`
   //
-  // Replaced the old `GET ...?licenseNumber=&dateOfBirth=` lookup, which used a
-  // provider contract that is no longer current.
+  // Same path, two methods. The Add Driver form uses the GET lookup: a company
+  // entering another person's details types the licence number and date of
+  // birth, and rarely has that person's licence photo to hand. The POST upload
+  // stays for the KYC flow, where the licence holder uploads their own.
   String get verifyDriverLicense => '/fleet/drivers/verify/license';
 
   // GET    /fleet/summary
