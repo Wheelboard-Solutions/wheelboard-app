@@ -605,7 +605,9 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             GestureDetector(
               onTap: _toggleManualLocation,
               child: Text(
-                _manualLocation ? 'Search with Maps' : 'Enter manually',
+                _manualLocation
+                    ? 'Search with Google Maps instead'
+                    : 'Enter address & coordinates manually',
                 style: AppText.caption.on(AppPalette.primary).copyWith(
                   fontWeight: FontWeight.w600,
                 ),
@@ -665,7 +667,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           Text(
             'Coordinates are optional, but entering them lets customers '
             'navigate straight to you. Leave both blank to save the address on '
-            'its own.',
+            'its own. Fill in the City below as well.',
             style: AppText.caption,
           ),
         ] else ...[

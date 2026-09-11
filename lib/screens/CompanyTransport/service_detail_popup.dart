@@ -3,7 +3,8 @@ import 'package:get/get.dart';
 
 import '../../controllers/Transport/company_booking_controller.dart';
 import '../../controllers/Transport/fleet_controller.dart';
-import '../../controllers/Transport/service_controller.dart';
+import '../../core/network/api_client.dart';
+import '../../core/network/api_endpoints.dart';
 import '../../models/service_model.dart';
 import '../../models/get_vehicle_model.dart';
 import 'package:wheelboard/core/auth/auth_service.dart';
@@ -93,16 +94,19 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
 
     setState(() => _fetchingLocation = true);
     try {
-      final controller = Get.isRegistered<ServiceController>()
-          ? Get.find<ServiceController>()
-          : Get.put(ServiceController());
-      await controller.fetchServiceDetail(serviceId);
-      final detail = controller.getServiceById(serviceId) ??
-          controller.selectedService.value;
-      final address = ((detail?.location ?? detail?.fullAddress ?? '').trim())
-          .isNotEmpty
-          ? (detail!.location ?? detail.fullAddress).trim()
-          : (detail?.city ?? '').trim();
+      // The single service, read directly. Going through ServiceController
+      // would mean `Get.put` on a controller whose `onInit` fetches the whole
+      // services list — a list request to read one listing's address.
+      final raw = await ApiClient.instance.get<dynamic>(
+        ApiEndpoints.services.details(serviceId),
+      );
+      final body = raw is Map && raw['data'] is Map ? raw['data'] : raw;
+      final detail = body is Map<String, dynamic>
+          ? ServiceModel.fromJson(body)
+          : null;
+      final resolved = (detail?.location ?? detail?.fullAddress ?? '').trim();
+      final address =
+          resolved.isNotEmpty ? resolved : (detail?.city ?? '').trim();
 
       if (!mounted) return;
       setState(() {
