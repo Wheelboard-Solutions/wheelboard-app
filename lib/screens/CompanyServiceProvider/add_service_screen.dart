@@ -14,6 +14,7 @@ import '../../models/service_payload.dart';
 import '../../theme/design_system.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/constants.dart';
+import '../../utils/manual_coordinates.dart';
 import '../../utils/placeservices.dart';
 import '../../widgets/custom_snackbar.dart';
 
@@ -536,55 +537,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     });
   }
 
-  /// Read the hand-typed coordinate pair.
-  ///
-  /// Both fields empty is a valid answer — the provider gave an address without
-  /// a pin, exactly as a listing saved before the Places flow. Anything else
-  /// must be a complete, in-range pair: half a coordinate is not a location,
-  /// and an out-of-range value is a typo, not a place. Zero is a real
-  /// coordinate and is preserved as one.
-  ({double? latitude, double? longitude, String? error})
-  _parseManualCoordinates() {
-    final lat = _latCtrl.text.trim();
-    final lng = _lngCtrl.text.trim();
-
-    if (lat.isEmpty && lng.isEmpty) {
-      return (latitude: null, longitude: null, error: null);
-    }
-    if (lat.isEmpty || lng.isEmpty) {
-      return (
-        latitude: null,
-        longitude: null,
-        error: 'Enter both latitude and longitude, or leave both blank.',
-      );
-    }
-
-    final latitude = double.tryParse(lat);
-    final longitude = double.tryParse(lng);
-    if (latitude == null || longitude == null) {
-      return (
-        latitude: null,
-        longitude: null,
-        error: 'Latitude and longitude must be numbers, e.g. 19.076090.',
-      );
-    }
-    if (latitude < -90 || latitude > 90) {
-      return (
-        latitude: null,
-        longitude: null,
-        error: 'Latitude must be between -90 and 90.',
-      );
-    }
-    if (longitude < -180 || longitude > 180) {
-      return (
-        latitude: null,
-        longitude: null,
-        error: 'Longitude must be between -180 and 180.',
-      );
-    }
-
-    return (latitude: latitude, longitude: longitude, error: null);
-  }
+  /// The hand-typed pair, read through the shared parser so the rules match
+  /// wheelboard-fe exactly and can be unit-tested without building a widget.
+  ManualCoordinates _parseManualCoordinates() =>
+      parseManualCoordinates(_latCtrl.text, _lngCtrl.text);
 
   /// The manual pair's problem, or null when it is fine (including both blank).
   ///
