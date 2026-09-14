@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 
 import '../../controllers/Transport/company_booking_controller.dart';
 import '../../models/service_booking_model.dart';
+import '../../utils/map_navigation_utils.dart';
+import '../../widgets/custom_snackbar.dart';
 import 'services_screen.dart' show bookingStatusStyle;
 
 /// Company (consumer) booking detail — mirrors the web `/company/bookings/[id]`:
@@ -278,8 +280,10 @@ class _CompanyBookingDetailScreenState
       child: Column(children: [
         _row(Icons.calendar_today_outlined, 'Scheduled',
             _fmtSchedule(b.scheduledDate, b.scheduledTime)),
-        if ((b.location ?? '').isNotEmpty)
+        if ((b.location ?? '').isNotEmpty) ...[
           _row(Icons.location_on_outlined, 'Location', b.location!),
+          _navigateToServiceLocation(b),
+        ],
         if ((b.customerName).isNotEmpty)
           _row(Icons.business_outlined, 'Booked for', b.customerName),
         if ((b.vehicleNumber ?? '').isNotEmpty)
@@ -424,6 +428,56 @@ class _CompanyBookingDetailScreenState
         child,
       ]),
     );
+  }
+
+  /// Directions to where the service happens.
+  ///
+  /// The destination is the BOOKING'S service location — the address the
+  /// provider saved on the listing and the company confirmed at assignment —
+  /// never the phone's current position, which is where the driver already is.
+  ///
+  /// A booking records that location as text (the booking table has no
+  /// coordinate columns), so this routes by address. Shown only when there is
+  /// an address to route to; the caller already gates on that.
+  Widget _navigateToServiceLocation(ServiceBookingModel b) {
+    final destination = (b.location ?? '').trim();
+    if (destination.isEmpty) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: () => _openDirections(destination),
+          icon: const Icon(Icons.directions_outlined, size: 18),
+          label: const Text(
+            'Navigate to service location',
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              fontFamily: 'Poppins',
+            ),
+          ),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: _primary,
+            side: const BorderSide(color: _primary),
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openDirections(String destination) async {
+    final opened = await MapNavigationUtils.openDirectionsToAddress(
+      address: destination,
+    );
+    if (!opened && mounted) {
+      SnackBarHelper.error('No maps app could open this location.');
+    }
   }
 
   Widget _row(IconData icon, String label, String value, {Color? valueColor}) {

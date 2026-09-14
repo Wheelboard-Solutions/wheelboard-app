@@ -14,6 +14,7 @@ import '../../models/service_payload.dart';
 import '../../theme/design_system.dart';
 import '../../utils/app_logger.dart';
 import '../../utils/constants.dart';
+import '../../utils/location_service.dart';
 import '../../utils/manual_coordinates.dart';
 import '../../utils/placeservices.dart';
 import '../../widgets/custom_snackbar.dart';
@@ -117,6 +118,10 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   bool _manualLocation = false;
   final _latCtrl = TextEditingController();
   final _lngCtrl = TextEditingController();
+
+  /// A current-location lookup is in flight. Only reachable from Search mode,
+  /// so it can never land on hand-typed coordinates.
+  bool _gettingCurrentLocation = false;
 
   // Canonical category options (per the design spec).
   List<String> _categoryOptions = const [
@@ -513,10 +518,11 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   /// flipping the mode never silently discards their work: a resolved pin seeds
   /// the coordinate fields, and a complete manual pair becomes the listing's
   /// resolved pin.
-  void _toggleManualLocation() {
+  void _setManualLocation(bool manual) {
+    if (manual == _manualLocation) return;
     FocusScope.of(context).unfocus();
     setState(() {
-      if (!_manualLocation) {
+      if (manual) {
         _latCtrl.text = _latitude?.toString() ?? '';
         _lngCtrl.text = _longitude?.toString() ?? '';
         // No half-resolved lookup should survive into manual mode: it would
@@ -549,28 +555,143 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   String? _manualCoordinateError() =>
       _manualLocation ? _parseManualCoordinates().error : null;
 
+  /// One of the two location modes, drawn so the active one is obvious at a
+  /// glance rather than inferred from a line of text.
+  Widget _modeChip({
+    required IconData icon,
+    required String label,
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    final foreground = selected ? Colors.white : AppPalette.textGrey;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        // 44dp keeps each mode a comfortable touch target.
+        height: 44,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: selected ? AppPalette.primary : AppPalette.card,
+          borderRadius: AppRadius.rLg,
+          border: Border.all(
+            color: selected ? AppPalette.primary : AppPalette.border,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: foreground),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppText.bodySm
+                    .on(foreground)
+                    .copyWith(fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Fill the address and pin from the device's current position.
+  ///
+  /// The Places-mode counterpart of wheelboard-fe's GPS button: take the fix,
+  /// reverse-geocode it for a human address, and keep BOTH — the coordinates
+  /// are the listing's pin, the address is what customers read.
+  ///
+  /// Only reachable from Search mode, and it returns immediately if that ever
+  /// changes, so a hand-typed coordinate pair can never be overwritten by GPS.
+  /// Any half-finished Places lookup is dropped for the same reason.
+  Future<void> _useCurrentLocation() async {
+    if (_manualLocation || _gettingCurrentLocation) return;
+
+    setState(() {
+      _gettingCurrentLocation = true;
+      _pendingLocationLookup = null;
+      _resolvingLocation = false;
+      _suggestions = [];
+    });
+
+    try {
+      final position = await LocationService.getCurrentPosition();
+      if (!mounted) return;
+
+      if (position == null) {
+        SnackBarHelper.error(
+          'Could not get your location. Check location permissions and try '
+          'again, or enter the address manually.',
+        );
+        return;
+      }
+
+      final address = await LocationService.getAddressFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+      if (!mounted) return;
+
+      setState(() {
+        _latitude = position.latitude;
+        _longitude = position.longitude;
+        // A reverse-geocode miss still leaves a usable pin, so the coordinates
+        // are kept and only the text falls back.
+        if (address != null && address.trim().isNotEmpty) {
+          _addressCtrl.text = address.trim();
+        } else if (_addressCtrl.text.trim().isEmpty) {
+          _addressCtrl.text =
+              '${position.latitude.toStringAsFixed(6)}, '
+              '${position.longitude.toStringAsFixed(6)}';
+        }
+      });
+    } catch (e) {
+      AppLogger.e('Current-location lookup failed: $e');
+      if (mounted) {
+        SnackBarHelper.error(
+          'Could not get your location. Please try again or enter the '
+          'address manually.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _gettingCurrentLocation = false);
+    }
+  }
+
   Widget _locationSection() {
     return _sectionCard(
       title: 'Location',
       icon: Iconsax.location,
       children: [
+        // Exactly one mode is active, and which one is unmistakable. The
+        // previous line of tappable text left providers unsure whether the
+        // search field or the coordinates were what the listing would save.
         Row(
           children: [
-            Text('Business Address', style: AppText.label),
-            const Spacer(),
-            GestureDetector(
-              onTap: _toggleManualLocation,
-              child: Text(
-                _manualLocation
-                    ? 'Search with Google Maps instead'
-                    : 'Enter address & coordinates manually',
-                style: AppText.caption.on(AppPalette.primary).copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+            Expanded(
+              child: _modeChip(
+                icon: Iconsax.search_normal_1,
+                label: 'Search location',
+                selected: !_manualLocation,
+                onTap: () => _setManualLocation(false),
+              ),
+            ),
+            AppSpacing.hGapSm,
+            Expanded(
+              child: _modeChip(
+                icon: Iconsax.edit_2,
+                label: 'Enter manually',
+                selected: _manualLocation,
+                onTap: () => _setManualLocation(true),
               ),
             ),
           ],
         ),
+        AppSpacing.vGapMd,
+        Text('Business Address', style: AppText.label),
         const SizedBox(height: 6),
         if (_manualLocation) ...[
           TextFormField(
@@ -630,9 +751,11 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           TextFormField(
             controller: _addressCtrl,
             style: AppText.body.on(AppPalette.textDark),
+            // No suffix icon here: a pin that looked like a "use my location"
+            // button but did nothing was the single most confusing thing on
+            // this screen. The real action is the button below.
             decoration: _inputDecoration(
               hint: 'Search for your business address',
-              suffix: const Icon(Iconsax.location, color: AppPalette.primary, size: 20),
             ),
             onChanged: (value) async {
               // Typing over a resolved address invalidates its pin — the text
@@ -655,6 +778,34 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
                 AppLogger.e('Error fetching address suggestions: $e');
               }
             },
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: _gettingCurrentLocation ? null : _useCurrentLocation,
+              icon: _gettingCurrentLocation
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Iconsax.gps, size: 18),
+              label: Text(
+                _gettingCurrentLocation
+                    ? 'Getting your location…'
+                    : 'Use current location',
+                style: AppText.bodySm.on(AppPalette.primary).copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppPalette.primary,
+                side: const BorderSide(color: AppPalette.primary),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.rLg),
+              ),
+            ),
           ),
           _locationStatus(),
         ],
