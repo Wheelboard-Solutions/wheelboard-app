@@ -420,7 +420,7 @@ class _HomeScreenState extends State<HomeScreen>
           ),
           const SizedBox(height: 2),
           Text(
-            s.label,
+            s.label.tr,
             style: const TextStyle(
               fontSize: 9,
               color: _textGrey,
@@ -444,9 +444,10 @@ class _HomeScreenState extends State<HomeScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
+          Text(
+            'Quick Actions'.tr,
+            style: const TextStyle(
+
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: _textDark,
@@ -506,7 +507,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              item.label,
+              item.label.tr,
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -517,6 +518,7 @@ class _HomeScreenState extends State<HomeScreen>
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+
           ],
         ),
       ),
@@ -1079,7 +1081,7 @@ class _HomeScreenState extends State<HomeScreen>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          title,
+          title.tr,
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -1091,9 +1093,9 @@ class _HomeScreenState extends State<HomeScreen>
         if (onTap != null)
           GestureDetector(
             onTap: onTap,
-            child: const Text(
-              'View all',
-              style: TextStyle(
+            child: Text(
+              'View all'.tr,
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w500,
                 color: _primary,
@@ -1101,6 +1103,7 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           ),
+
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -8,6 +9,8 @@ import 'core/network/api_client.dart';
 import 'core/auth/auth_service.dart';
 import 'core/navigation/app_routes.dart';
 import 'core/navigation/app_pages.dart';
+import 'core/localization/localization_service.dart';
+import 'core/localization/app_translations.dart';
 import 'services/push_notification_service.dart';
 import 'utils/navigation_helper.dart';
 import 'utils/app_logger.dart';
@@ -21,6 +24,10 @@ void main() async {
 
   // Push notifications (FCM). No-ops gracefully until native config is added.
   await PushNotificationService.instance.init();
+
+  // Initialize Localization Service
+  await Get.putAsync(() => LocalizationService.init());
+  AppLogger.d("🌐 Localization Service initialized");
 
   // ── Initialize Core Services ─────────────────────────────────────────
   // API_URL is read from .env — no code change needed to switch environments.
@@ -40,16 +47,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizationService = LocalizationService.to;
+
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'WheelBoard',
       themeMode: ThemeMode.system,
+      translations: AppTranslations(),
+      locale: localizationService.currentLocale,
+      fallbackLocale: LocalizationService.fallbackLocale,
+      supportedLocales: LocalizationService.supportedLocales,
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
       unknownRoute: GetPage(
         name: '/not-found',
-        page: () => const Scaffold(
-          body: Center(child: Text('Page not found')),
+        page: () => Scaffold(
+          body: Center(child: Text('Page not found'.tr)),
         ),
       ),
     );

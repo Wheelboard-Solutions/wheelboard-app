@@ -1,0 +1,393 @@
+class AuthTranslations {
+  static const Map<String, String> en = {
+    // Onboarding & Welcome
+    'Welcome to WheelBoard': 'Welcome to WheelBoard',
+    'Smart Logistics Platform': 'Smart Logistics Platform',
+    'Welcome back': 'Welcome back',
+    'Sign in to continue to your account': 'Sign in to continue to your account',
+    'Email & Password': 'Email & Password',
+    'Phone OTP': 'Phone OTP',
+    'Get Started': 'Get Started',
+    'Skip': 'Skip',
+    'Log In': 'Log In',
+    'Welcome Back': 'Welcome Back',
+    'Register here': 'Register here',
+    'Choose how you want to use Wheelboard': 'Choose how you want to use Wheelboard',
+
+    'Sign In': 'Sign In',
+    'Sign Up': 'Sign Up',
+    'Register': 'Register',
+    'Login to your account': 'Login to your account',
+    'Create an Account': 'Create an Account',
+    'Select Your Role': 'Select Your Role',
+    'Choose how you want to use WheelBoard': 'Choose how you want to use WheelBoard',
+
+    // Roles
+    'Transport Company': 'Transport Company',
+    'Fleet Owner & Logistics': 'Fleet Owner & Logistics',
+    'Professional Driver': 'Professional Driver',
+    'Driver & Heavy Vehicle Operator': 'Driver & Heavy Vehicle Operator',
+    'Service Provider': 'Service Provider',
+    'Vehicle Repair & Maintenance': 'Vehicle Repair & Maintenance',
+
+    // Fields & Placeholders
+    'Email or Phone': 'Email or Phone',
+    'Email Address': 'Email Address',
+    'Phone Number': 'Phone Number',
+    'Mobile Number': 'Mobile Number',
+    'Password': 'Password',
+    'Confirm Password': 'Confirm Password',
+    'Full Name': 'Full Name',
+    'Company Name': 'Company Name',
+    'Business Name': 'Business Name',
+    'Enter your password': 'Enter your password',
+    'Enter your email or phone': 'Enter your email or phone',
+    'Enter mobile number': 'Enter mobile number',
+    'Enter your full name': 'Enter your full name',
+    'Enter company name': 'Enter company name',
+    'Enter business name': 'Enter business name',
+
+    // Auth actions & Links
+    'Forgot Password?': 'Forgot Password?',
+    'Reset Password': 'Reset Password',
+    'Remember Me': 'Remember Me',
+    'Don\'t have an account?': 'Don\'t have an account?',
+    'Already have an account?': 'Already have an account?',
+    'Sign in here': 'Sign in here',
+    'Sign up here': 'Sign up here',
+
+    // OTP
+    'Login with Password': 'Login with Password',
+    'Login with OTP': 'Login with OTP',
+    'Send OTP': 'Send OTP',
+    'Verify OTP': 'Verify OTP',
+    'Enter OTP': 'Enter OTP',
+    'Enter 4-digit code': 'Enter 4-digit code',
+    'Enter the 4-digit code sent to your mobile': 'Enter the 4-digit code sent to your mobile',
+    'Resend OTP': 'Resend OTP',
+    'Didn\'t receive OTP?': 'Didn\'t receive OTP?',
+    'OTP verified successfully': 'OTP verified successfully',
+    'Sending OTP...': 'Sending OTP...',
+
+    // Legal notice
+    'By continuing, you agree to our': 'By continuing, you agree to our',
+    'Terms of Service': 'Terms of Service',
+    'and': 'and',
+    'Privacy Policy': 'Privacy Policy',
+
+    // Validation messages
+    'Please enter email or phone': 'Please enter email or phone',
+    'Please enter password': 'Please enter password',
+    'Please enter valid phone number': 'Please enter valid phone number',
+    'Password must be at least 6 characters': 'Password must be at least 6 characters',
+    'Passwords do not match': 'Passwords do not match',
+    'Please fill all required fields': 'Please fill all required fields',
+    'Login successful': 'Login successful',
+    'Account created successfully': 'Account created successfully',
+
+    // Complete Profile
+    'Complete Profile': 'Complete Profile',
+    'Complete Your Profile': 'Complete Your Profile',
+    'Personal Information': 'Personal Information',
+    'Business Details': 'Business Details',
+    'Document Verification': 'Document Verification',
+    'Save & Proceed': 'Save & Proceed',
+    'Step 1 of 3': 'Step 1 of 3',
+    'Step 2 of 3': 'Step 2 of 3',
+    'Step 3 of 3': 'Step 3 of 3',
+  };
+
+  static const Map<String, String> hi = {
+    // Onboarding & Welcome
+    'Welcome to WheelBoard': 'व्हीलबोर्ड में आपका स्वागत है',
+    'Smart Logistics Platform': 'स्मार्ट लॉजिस्टिक्स प्लेटफ़ॉर्म',
+    'Welcome back': 'वापसी पर स्वागत है',
+    'Sign in to continue to your account': 'अपने खाते में जारी रखने के लिए साइन इन करें',
+    'Email & Password': 'ईमेल और पासवर्ड',
+    'Phone OTP': 'फ़ोन ओटीपी',
+    'Get Started': 'शुरू करें',
+    'Skip': 'छोड़ें',
+    'Log In': 'लॉग इन करें',
+    'Welcome Back': 'वापसी पर स्वागत है',
+    'Register here': 'यहाँ पंजीकरण करें',
+    'Choose how you want to use Wheelboard': 'चुनें कि आप व्हीलबोर्ड का उपयोग कैसे करना चाहते हैं',
+
+    'Sign In': 'साइन इन करें',
+    'Sign Up': 'साइन अप करें',
+    'Register': 'पंजीकरण करें',
+    'Login to your account': 'अपने खाते में लॉगिन करें',
+    'Create an Account': 'खाता बनाएं',
+    'Select Your Role': 'अपनी भूमिका चुनें',
+    'Choose how you want to use WheelBoard': 'चुनें कि आप व्हीलबोर्ड का उपयोग कैसे करना चाहते हैं',
+
+    // Roles
+    'Transport Company': 'ट्रांसपोर्ट कंपनी',
+    'Fleet Owner & Logistics': 'फ्लीट मालिक और लॉजिस्टिक्स',
+    'Professional Driver': 'प्रोफेशनल ड्राइवर',
+    'Driver & Heavy Vehicle Operator': 'ड्राइवर और भारी वाहन ऑपरेटर',
+    'Service Provider': 'सेवा प्रदाता',
+    'Vehicle Repair & Maintenance': 'वाहन मरम्मत और रखरखाव',
+
+    // Fields & Placeholders
+    'Email or Phone': 'ईमेल या फ़ोन',
+    'Email Address': 'ईमेल पता',
+    'Phone Number': 'फ़ोन नंबर',
+    'Mobile Number': 'मोबाइल नंबर',
+    'Password': 'पासवर्ड',
+    'Confirm Password': 'पासवर्ड की पुष्टि करें',
+    'Full Name': 'पूरा नाम',
+    'Company Name': 'कंपनी का नाम',
+    'Business Name': 'व्यवसाय का नाम',
+    'Enter your password': 'अपना पासवर्ड दर्ज करें',
+    'Enter your email or phone': 'अपना ईमेल या फ़ोन दर्ज करें',
+    'Enter mobile number': 'मोबाइल नंबर दर्ज करें',
+    'Enter your full name': 'अपना पूरा नाम दर्ज करें',
+    'Enter company name': 'कंपनी का नाम दर्ज करें',
+    'Enter business name': 'व्यवसाय का नाम दर्ज करें',
+
+    // Auth actions & Links
+    'Forgot Password?': 'पासवर्ड भूल गए?',
+    'Reset Password': 'पासवर्ड रीसेट करें',
+    'Remember Me': 'मुझे याद रखें',
+    'Don\'t have an account?': 'खाता नहीं है?',
+    'Already have an account?': 'पहले से खाता है?',
+    'Sign in here': 'यहाँ साइन इन करें',
+    'Sign up here': 'यहाँ साइन अप करें',
+
+    // OTP
+    'Login with Password': 'पासवर्ड से लॉगिन करें',
+    'Login with OTP': 'ओटीपी से लॉगिन करें',
+    'Send OTP': 'ओटीपी भेजें',
+    'Verify OTP': 'ओटीपी सत्यापित करें',
+    'Enter OTP': 'ओटीपी दर्ज करें',
+    'Enter 4-digit code': '4-अंकों का कोड दर्ज करें',
+    'Enter the 4-digit code sent to your mobile': 'अपने मोबाइल पर भेजा गया 4-अंकों का कोड दर्ज करें',
+    'Resend OTP': 'ओटीपी पुनः भेजें',
+    'Didn\'t receive OTP?': 'ओटीपी नहीं मिला?',
+    'OTP verified successfully': 'ओटीपी सफलतापूर्वक सत्यापित हुआ',
+    'Sending OTP...': 'ओटीपी भेजा जा रहा है...',
+
+    // Legal notice
+    'By continuing, you agree to our': 'जारी रखकर, आप हमारी शर्तों से सहमत होते हैं',
+    'Terms of Service': 'सेवा की शर्तें',
+    'and': 'और',
+    'Privacy Policy': 'गोपनीयता नीति',
+
+    // Validation messages
+    'Please enter email or phone': 'कृपया ईमेल या फ़ोन दर्ज करें',
+    'Please enter password': 'कृपया पासवर्ड दर्ज करें',
+    'Please enter valid phone number': 'कृपया मान्य फ़ोन नंबर दर्ज करें',
+    'Password must be at least 6 characters': 'पासवर्ड कम से कम 6 अक्षरों का होना चाहिए',
+    'Passwords do not match': 'पासवर्ड मेल नहीं खाते',
+    'Please fill all required fields': 'कृपया सभी आवश्यक फ़ील्ड भरें',
+    'Login successful': 'लॉगिन सफल',
+    'Account created successfully': 'खाता सफलतापूर्वक बनाया गया',
+
+    // Complete Profile
+    'Complete Profile': 'प्रोफ़ाइल पूरी करें',
+    'Complete Your Profile': 'अपनी प्रोफ़ाइल पूरी करें',
+    'Personal Information': 'व्यक्तिगत जानकारी',
+    'Business Details': 'व्यवसाय विवरण',
+    'Document Verification': 'दस्तावेज़ सत्यापन',
+    'Save & Proceed': 'सहेजें और आगे बढ़ें',
+    'Step 1 of 3': 'चरण 1 / 3',
+    'Step 2 of 3': 'चरण 2 / 3',
+    'Step 3 of 3': 'चरण 3 / 3',
+  };
+
+  static const Map<String, String> mr = {
+    // Onboarding & Welcome
+    'Welcome to WheelBoard': 'व्हीलबोर्डमध्ये आपले स्वागत आहे',
+    'Smart Logistics Platform': 'स्मार्ट लॉजिस्टिक्स प्लॅटफॉर्म',
+    'Welcome back': 'पुन्हा स्वागत आहे',
+    'Sign in to continue to your account': 'आपल्या खात्यात सुरू ठेवण्यासाठी साइन इन करा',
+    'Email & Password': 'ईमेल आणि पासवर्ड',
+    'Phone OTP': 'फोन ओटीपी',
+    'Get Started': 'सुरू करा',
+    'Skip': 'वगळा',
+    'Log In': 'लॉग इन करा',
+    'Welcome Back': 'पुन्हा स्वागत आहे',
+    'Register here': 'येथे नोंदणी करा',
+    'Choose how you want to use Wheelboard': 'तुम्ही व्हीलबोर्ड कसे वापरू इच्छिता ते निवडा',
+
+    'Sign In': 'साइन इन करा',
+    'Sign Up': 'साइन अप करा',
+    'Register': 'नोंदणी करा',
+    'Login to your account': 'आपल्या खात्यात लॉगिन करा',
+    'Create an Account': 'खाते तयार करा',
+    'Select Your Role': 'आपली भूमिका निवडा',
+    'Choose how you want to use WheelBoard': 'तुम्ही व्हीलबोर्ड कसे वापरू इच्छिता ते निवडा',
+
+    // Roles
+    'Transport Company': 'ट्रान्सपोर्ट कंपनी',
+    'Fleet Owner & Logistics': 'फ्लीट मालक आणि लॉजिस्टिक्स',
+    'Professional Driver': 'व्यावसायिक चालक (ड्रायव्हर)',
+    'Driver & Heavy Vehicle Operator': 'चालक आणि अवजड वाहन ऑपरेटर',
+    'Service Provider': 'सेवा प्रदाता',
+    'Vehicle Repair & Maintenance': 'वाहन दुरुस्ती आणि देखभाल',
+
+    // Fields & Placeholders
+    'Email or Phone': 'ईमेल किंवा फोन',
+    'Email Address': 'ईमेल पत्ता',
+    'Phone Number': 'फोन नंबर',
+    'Mobile Number': 'मोबाईल नंबर',
+    'Password': 'पासवर्ड',
+    'Confirm Password': 'पासवर्डची पुष्टी करा',
+    'Full Name': 'पूर्ण नाव',
+    'Company Name': 'कंपनीचे नाव',
+    'Business Name': 'व्यवसायाचे नाव',
+    'Enter your password': 'आपला पासवर्ड प्रविष्ट करा',
+    'Enter your email or phone': 'आपला ईमेल किंवा फोन प्रविष्ट करा',
+    'Enter mobile number': 'मोबाईल नंबर प्रविष्ट करा',
+    'Enter your full name': 'आपले पूर्ण नाव प्रविष्ट करा',
+    'Enter company name': 'कंपनीचे नाव प्रविष्ट करा',
+    'Enter business name': 'व्यवसायाचे नाव प्रविष्ट करा',
+
+    // Auth actions & Links
+    'Forgot Password?': 'पासवर्ड विसरलात?',
+    'Reset Password': 'पासवर्ड रीसेट करा',
+    'Remember Me': 'माझी आठवण ठेवा',
+    'Don\'t have an account?': 'खाते नाही?',
+    'Already have an account?': 'आधीच खाते आहे?',
+    'Sign in here': 'येथे साइन इन करा',
+    'Sign up here': 'येथे साइन अप करा',
+
+    // OTP
+    'Login with Password': 'पासवर्डने लॉगिन करा',
+    'Login with OTP': 'ओटीपीने लॉगिन करा',
+    'Send OTP': 'ओटीपी पाठवा',
+    'Verify OTP': 'ओटीपी सत्यापित करा',
+    'Enter OTP': 'ओटीपी प्रविष्ट करा',
+    'Enter 4-digit code': '४-अंकी कोड प्रविष्ट करा',
+    'Enter the 4-digit code sent to your mobile': 'आपल्या मोबाईलवर पाठवलेला ४-अंकी कोड प्रविष्ट करा',
+    'Resend OTP': 'ओटीपी पुन्हा पाठवा',
+    'Didn\'t receive OTP?': 'ओटीपी मिळाला नाही?',
+    'OTP verified successfully': 'ओटीपी यशस्वीरित्या सत्यापित झाला',
+    'Sending OTP...': 'ओटीपी पाठवत आहे...',
+
+    // Legal notice
+    'By continuing, you agree to our': 'पुढे जाऊन, आपण आमच्या नियमांशी सहमत आहात',
+    'Terms of Service': 'सेवा अटी',
+    'and': 'आणि',
+    'Privacy Policy': 'गोपनीयता धोरण',
+
+    // Validation messages
+    'Please enter email or phone': 'कृपया ईमेल किंवा फोन प्रविष्ट करा',
+    'Please enter password': 'कृपया पासवर्ड प्रविष्ट करा',
+    'Please enter valid phone number': 'कृपया वैध फोन नंबर प्रविष्ट करा',
+    'Password must be at least 6 characters': 'पासवर्ड किमान ६ अक्षरांचा असावा',
+    'Passwords do not match': 'पासवर्ड जुळत नाहीत',
+    'Please fill all required fields': 'कृपया सर्व आवश्यक माहिती भरा',
+    'Login successful': 'लॉगिन यशस्वी झाले',
+    'Account created successfully': 'खाते यशस्वीरित्या तयार झाले',
+
+    // Complete Profile
+    'Complete Profile': 'प्रोफाइल पूर्ण करा',
+    'Complete Your Profile': 'आपली प्रोफाइल पूर्ण करा',
+    'Personal Information': 'वैयक्तिक माहिती',
+    'Business Details': 'व्यवसाय तपशील',
+    'Document Verification': 'कागदपत्र पडताळणी',
+    'Save & Proceed': 'जतन करा आणि पुढे जा',
+    'Step 1 of 3': 'पायरी १ / ३',
+    'Step 2 of 3': 'पायरी २ / ३',
+    'Step 3 of 3': 'पायरी ३ / ३',
+  };
+
+  static const Map<String, String> ta = {
+    // Onboarding & Welcome
+    'Welcome to WheelBoard': 'வீல்போர்டுக்கு உங்களை வரவேற்கிறோம்',
+    'Smart Logistics Platform': 'ஸ்மார்ட் லாஜிஸ்டிக்ஸ் தளம்',
+    'Welcome back': 'மீண்டும் வருக',
+    'Sign in to continue to your account': 'உங்கள் கணக்கில் தொடர உள்நுழையவும்',
+    'Email & Password': 'மின்னஞ்சல் மற்றும் கடவுச்சொல்',
+    'Phone OTP': 'தொலைபேசி OTP',
+    'Get Started': 'தொடங்குங்கள்',
+    'Skip': 'தவிர்',
+    'Log In': 'உள்நுழையவும்',
+    'Welcome Back': 'மீண்டும் வருக',
+    'Register here': 'இங்கே பதிவு செய்யவும்',
+    'Choose how you want to use Wheelboard': 'வீல்போர்டை எவ்வாறு பயன்படுத்த விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்க',
+
+    'Sign In': 'உள்நுழையவும்',
+    'Sign Up': 'பதிவு செய்யவும்',
+    'Register': 'பதிவு செய்ய',
+    'Login to your account': 'உங்கள் கணக்கில் உள்நுழையவும்',
+    'Create an Account': 'கணக்கை உருவாக்கவும்',
+    'Select Your Role': 'உங்கள் பங்கைத் தேர்ந்தெடுக்கவும்',
+    'Choose how you want to use WheelBoard': 'வீல்போர்டை எவ்வாறு பயன்படுத்த விரும்புகிறீர்கள் என்பதைத் தேர்வுசெய்க',
+
+    // Roles
+    'Transport Company': 'போக்குவரத்து நிறுவனம்',
+    'Fleet Owner & Logistics': 'வாகன உரிமையாளர் மற்றும் தளவாடங்கள்',
+    'Professional Driver': 'தொழில்முறை ஓட்டுநர்',
+    'Driver & Heavy Vehicle Operator': 'ஓட்டுநர் மற்றும் கனரக வாகன ஆபரேட்டர்',
+    'Service Provider': 'சேவை வழங்குநர்',
+    'Vehicle Repair & Maintenance': 'வாகன பழுதுபார்ப்பு மற்றும் பராமரிப்பு',
+
+    // Fields & Placeholders
+    'Email or Phone': 'மின்னஞ்சல் அல்லது தொலைபேசி',
+    'Email Address': 'மின்னஞ்சல் முகவரி',
+    'Phone Number': 'தொலைபேசி எண்',
+    'Mobile Number': 'மொபைல் எண்',
+    'Password': 'கடவுச்சொல்',
+    'Confirm Password': 'கடவுச்சொல்லை உறுதிப்படுத்தவும்',
+    'Full Name': 'முழு பெயர்',
+    'Company Name': 'நிறுவனத்தின் பெயர்',
+    'Business Name': 'வணிக பெயர்',
+    'Enter your password': 'உங்கள் கடவுச்சொல்லை உள்ளிடவும்',
+    'Enter your email or phone': 'மின்னஞ்சல் அல்லது தொலைபேசியை உள்ளிடவும்',
+    'Enter mobile number': 'மொபைல் எண்ணை உள்ளிடவும்',
+    'Enter your full name': 'உங்கள் முழு பெயரை உள்ளிடவும்',
+    'Enter company name': 'நிறுவனத்தின் பெயரை உள்ளிடவும்',
+    'Enter business name': 'வணிக பெயரை உள்ளிடவும்',
+
+    // Auth actions & Links
+    'Forgot Password?': 'கடவுச்சொல் மறந்துவிட்டதா?',
+    'Reset Password': 'கடவுச்சொல்லை மீட்டமைக்கவும்',
+    'Remember Me': 'என்னை நினைவில் கொள்',
+    'Don\'t have an account?': 'கணக்கு இல்லையா?',
+    'Already have an account?': 'ஏற்கனவே கணக்கு உள்ளதா?',
+    'Sign in here': 'இங்கே உள்நுழையவும்',
+    'Sign up here': 'இங்கே பதிவு செய்யவும்',
+
+    // OTP
+    'Login with Password': 'கடவுச்சொல் மூலம் உள்நுழைக',
+    'Login with OTP': 'OTP மூலம் உள்நுழைக',
+    'Send OTP': 'OTP அனுப்பவும்',
+    'Verify OTP': 'OTP சரிபார்க்கவும்',
+    'Enter OTP': 'OTP உள்ளிடவும்',
+    'Enter 4-digit code': '4 இலக்க குறியீட்டை உள்ளிடவும்',
+    'Enter the 4-digit code sent to your mobile': 'உங்கள் மொபைலுக்கு அனுப்பப்பட்ட 4 இலக்க குறியீட்டை உள்ளிடவும்',
+    'Resend OTP': 'OTP மீண்டும் அனுப்பவும்',
+    'Didn\'t receive OTP?': 'OTP வரவில்லையா?',
+    'OTP verified successfully': 'OTP வெற்றிகரமாக சரிபார்க்கப்பட்டது',
+    'Sending OTP...': 'OTP அனுப்பப்படுகிறது...',
+
+    // Legal notice
+    'By continuing, you agree to our': 'தொடர்வதன் மூலம், எங்கள் விதிமுறைகளை ஏற்கிறீர்கள்',
+    'Terms of Service': 'சேவை விதிமுறைகள்',
+    'and': 'மற்றும்',
+    'Privacy Policy': 'தனியுரிமைக் கொள்கை',
+
+    // Validation messages
+    'Please enter email or phone': 'மின்னஞ்சல் அல்லது தொலைபேசியை உள்ளிடவும்',
+    'Please enter password': 'கடவுச்சொல்லை உள்ளிடவும்',
+    'Please enter valid phone number': 'சரியான தொலைபேசி எண்ணை உள்ளிடவும்',
+    'Password must be at least 6 characters': 'கடவுச்சொல் குறைந்தபட்சம் 6 எழுத்துகள் இருக்க வேண்டும்',
+    'Passwords do not match': 'கடவுச்சொற்கள் பொருந்தவில்லை',
+    'Please fill all required fields': 'தேவையான அனைத்து புலங்களையும் நிரப்பவும்',
+    'Login successful': 'வெற்றிகரமாக உள்நுழைந்துள்ளீர்கள்',
+    'Account created successfully': 'கணக்கு வெற்றிகரமாக உருவாக்கப்பட்டது',
+
+    // Complete Profile
+    'Complete Profile': 'சுயவிவரத்தை முடிக்கவும்',
+    'Complete Your Profile': 'உங்கள் சுயவிவரத்தை முழுமையாக்கவும்',
+    'Personal Information': 'தனிப்பட்ட தகவல்',
+    'Business Details': 'வணிக விவரங்கள்',
+    'Document Verification': 'ஆவண சரிபார்ப்பு',
+    'Save & Proceed': 'சேமித்து தொடரவும்',
+    'Step 1 of 3': 'படி 1 / 3',
+    'Step 2 of 3': 'படி 2 / 3',
+    'Step 3 of 3': 'படி 3 / 3',
+  };
+}

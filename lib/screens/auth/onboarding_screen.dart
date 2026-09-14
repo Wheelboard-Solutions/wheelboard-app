@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../widgets/language_selection_bottom_sheet.dart';
+import '../../core/localization/localization_service.dart';
 import 'login.dart';
 import 'company_signup.dart';
 import 'professional_signup.dart';
 import 'service_provider_register_screen.dart';
+
 
 // ─── Onboarding data ───────────────────────────────────────────────────────
 
@@ -116,24 +119,54 @@ class _OnboardingScreenState extends State<OnboardingScreen>
   Widget _buildSlides() {
     return Column(
       children: [
-        // Skip button
-        Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(0, 16, 20, 0),
-            child: TextButton(
-              onPressed: _showRoleSelectionView,
-              style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF9CA3AF),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        // Top Bar: Language switcher + Skip button
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              GestureDetector(
+                onTap: () => LanguageSelectionBottomSheet.show(context),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.language, color: Color(0xFFF36969), size: 16),
+                      const SizedBox(width: 6),
+                      Text(
+                        LocalizationService.to.currentLanguageName,
+                        style: const TextStyle(
+                          color: Color(0xFF111827),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          fontFamily: 'Poppins',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: const Text(
-                'Skip',
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              TextButton(
+                onPressed: _showRoleSelectionView,
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFF9CA3AF),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                ),
+                child: Text(
+                  'Skip'.tr,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
               ),
-            ),
+            ],
           ),
         ),
+
 
         // Page view
         Expanded(
@@ -255,20 +288,20 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ],
         ),
         child: isLast
-            ? const Row(
+            ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Get Started',
-                    style: TextStyle(
+                    'Get Started'.tr,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
                       fontSize: 14,
                       fontFamily: 'Poppins',
                     ),
                   ),
-                  SizedBox(width: 6),
-                  Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+                  const SizedBox(width: 6),
+                  const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
                 ],
               )
             : const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 22),
@@ -290,39 +323,72 @@ class _OnboardingScreenState extends State<OnboardingScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 32),
-                // Header
+                // Header with Logo + Language selector
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFFFFF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Image.asset(
-                        'assets/mainlogo.png',
-                        fit: BoxFit.contain,
-                        errorBuilder: (_, __, ___) => const Icon(
-                          Icons.local_shipping_rounded,
-                          color: Colors.white,
-                          size: 24,
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFFFF),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Image.asset(
+                            'assets/mainlogo.png',
+                            fit: BoxFit.contain,
+                            errorBuilder: (_, __, ___) => const Icon(
+                              Icons.local_shipping_rounded,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'WHEELBOARD',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF1A1C1E),
+                            letterSpacing: 1.5,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
-                      'WHEELBOARD',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF1A1C1E),
-                        letterSpacing: 1.5,
-                        fontFamily: 'Poppins',
+                    GestureDetector(
+                      onTap: () => LanguageSelectionBottomSheet.show(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3F4F6),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: const Color(0xFFE5E7EB)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.language, color: Color(0xFFF36969), size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              LocalizationService.to.currentLanguageName,
+                              style: const TextStyle(
+                                color: Color(0xFF111827),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                fontFamily: 'Poppins',
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
+
                 const SizedBox(height: 40),
 
                 // Title
@@ -363,8 +429,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 // Role cards
                 _RoleCard(
                   icon: Icons.person_outline_rounded,
-                  title: 'Professional',
-                  subtitle: 'Driver, Technician, or Helper looking for work',
+                  title: 'Professional Driver'.tr,
+                  subtitle: 'Driver & Heavy Vehicle Operator'.tr,
                   onTap: () => Get.to(
                     () => const ProfessionalRegisterScreen(),
                     transition: Transition.rightToLeft,
@@ -373,8 +439,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 const SizedBox(height: 14),
                 _RoleCard(
                   icon: Icons.local_shipping_rounded,
-                  title: 'Transport Company',
-                  subtitle: 'Fleet owner managing vehicles, drivers and trips',
+                  title: 'Transport Company'.tr,
+                  subtitle: 'Fleet Owner & Logistics'.tr,
                   onTap: () => Get.to(
                     () => Signup(initialCategory: 'Transport'),
                     transition: Transition.rightToLeft,
@@ -383,8 +449,8 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                 const SizedBox(height: 14),
                 _RoleCard(
                   icon: Icons.store_mall_directory_rounded,
-                  title: 'Service Provider',
-                  subtitle: 'Garage, workshop or parts dealer offering services',
+                  title: 'Service Provider'.tr,
+                  subtitle: 'Vehicle Repair & Maintenance'.tr,
                   onTap: () => Get.to(
                     () => const ServiceProviderRegisterScreen(),
                     transition: Transition.rightToLeft,
@@ -398,9 +464,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text(
-                        'Already have an account?',
-                        style: TextStyle(
+                      Text(
+                        'Already have an account?'.tr,
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF6B7280),
                           fontFamily: 'Poppins',
@@ -412,9 +478,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                           () => const LoginScreen(),
                           transition: Transition.rightToLeft,
                         ),
-                        child: const Text(
-                          'Log In',
-                          style: TextStyle(
+                        child: Text(
+                          'Log In'.tr,
+                          style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFFF36969),
@@ -425,6 +491,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 32),
               ],
             ),

@@ -131,21 +131,21 @@ class ProfessionalHomePageScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
       child: Row(
         children: [
-          action(Iconsax.calendar_1, 'My\nCalendar',
+          action(Iconsax.calendar_1, 'My Calendar'.tr,
               () => Get.to(const CalendarScreen())),
           AppSpacing.hGapSm,
-          action(Iconsax.location, 'Track\nMy Trip', () => _openCurrentTrip(c)),
+          action(Iconsax.location, 'Track My Trip'.tr, () => _openCurrentTrip(c)),
           AppSpacing.hGapSm,
-          action(Iconsax.money_recive, 'Earning',
+          action(Iconsax.money_recive, 'Earning'.tr,
               () => Get.to(const EarningSummaryScreen())),
           AppSpacing.hGapSm,
-          action(Iconsax.receipt_text, 'Expenses',
+          action(Iconsax.receipt_text, 'Expenses'.tr,
               () => Get.to(() => const ProfessionalExpensesScreen())),
           AppSpacing.hGapSm,
-          action(Iconsax.teacher, 'My\nLearning',
+          action(Iconsax.teacher, 'My Learning'.tr,
               () => Get.to(const MyLearningScreen())),
           AppSpacing.hGapSm,
-          action(Iconsax.card, 'My\nPlans',
+          action(Iconsax.card, 'My Plans'.tr,
               () => Get.to(() =>
                   const SubscriptionScreen(category: 'professional'))),
         ],
@@ -160,7 +160,8 @@ class ProfessionalHomePageScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Next Trip', style: AppText.h3),
+          Text('Next Trip'.tr, style: AppText.h3),
+
           AppSpacing.vGapMd,
           Obx(() {
             if (c.isLoading.value && c.assignedTrips.isEmpty) {
@@ -221,10 +222,10 @@ class ProfessionalHomePageScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Jobs for you', style: AppText.h3),
+              Text('Jobs for you'.tr, style: AppText.h3),
               GestureDetector(
                 onTap: () => jobsController.refreshOpenJobs(),
-                child: Text('Refresh',
+                child: Text('Refresh'.tr,
                     style: AppText.label
                         .on(AppPalette.primary)
                         .weight(FontWeight.w600)),
@@ -310,11 +311,11 @@ class ProfessionalHomePageScreen extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Popular Feeds', style: AppText.h3),
+              Text('Popular Feeds'.tr, style: AppText.h3),
               GestureDetector(
                 onTap: _openFeedsTab,
                 child: Row(children: [
-                  Text('View All',
+                  Text('View All'.tr,
                       style: AppText.subtitle.on(AppPalette.primary)),
                   const Icon(Iconsax.arrow_right_3,
                       size: 16, color: AppPalette.primary),
@@ -338,7 +339,7 @@ class ProfessionalHomePageScreen extends StatelessWidget {
                   border: Border.all(color: AppPalette.border),
                 ),
                 child: Center(
-                  child: Text('No feeds available yet.',
+                  child: Text('No feeds available yet.'.tr,
                       style: AppText.bodySm.on(AppPalette.textGrey)),
                 ),
               );

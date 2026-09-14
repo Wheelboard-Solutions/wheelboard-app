@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+
 
 /// Shared animated bottom navigation bar.
 ///
@@ -134,8 +136,9 @@ class _NavTabState extends State<_NavTab>
               ),
               const SizedBox(height: 4),
               Text(
-                widget.item.label,
+                widget.item.label.tr,
                 style: TextStyle(
+
                   fontSize: 10,
                   fontWeight: widget.isActive
                       ? FontWeight.w700
