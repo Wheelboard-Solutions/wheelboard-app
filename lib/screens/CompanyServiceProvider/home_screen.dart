@@ -161,7 +161,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Welcome back',
+                      Text('Welcome back'.tr,
                           style: AppText.caption.on(Colors.white70)),
                       Text(
                         name,
@@ -262,7 +262,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Complete your profile',
+                      Text('Complete your profile'.tr,
                           style: AppText.subtitle.on(const Color(0xFF92400E))),
                       Text(
                         'Add business details to get better visibility and leads.',
@@ -341,7 +341,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
           ),
           AppSpacing.vGapSm,
           Text(value, style: AppText.h2),
-          Text(label,
+          Text(label.tr,
               maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.caption),
         ],
       ),
@@ -393,7 +393,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
               ),
               AppSpacing.vGapSm,
               Text(
-                label,
+                label.tr,
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -423,10 +423,10 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
           }
           final services = _homeController.services;
           if (services.isEmpty) {
-            return const AppCard(
+            return AppCard(
               child: AppEmptyState(
                 icon: Iconsax.box,
-                title: 'No services yet',
+                title: 'No services yet'.tr,
                 subtitle: 'Create your first service to get started.',
               ),
             );
@@ -515,7 +515,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
             children: [
               Expanded(
                 child: AppSecondaryButton(
-                  label: 'Edit',
+                  label: 'Edit'.tr,
                   icon: Icons.edit_outlined,
                   onPressed: () =>
                       Get.to(() => AddServiceScreen(service: service)),
@@ -524,7 +524,7 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
               AppSpacing.hGapMd,
               Expanded(
                 child: AppSecondaryButton(
-                  label: published ? 'Unpublish' : 'Publish',
+                  label: published ? 'Unpublish'.tr : 'Publish'.tr,
                   icon: published
                       ? Icons.visibility_off_outlined
                       : Icons.visibility_outlined,
@@ -556,11 +556,11 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(title, style: AppText.h3),
+        Text(title.tr, style: AppText.h3),
         if (onView != null)
           GestureDetector(
             onTap: onView,
-            child: Text(viewLabel, style: AppText.subtitle.on(AppPalette.primary)),
+            child: Text(viewLabel.tr, style: AppText.subtitle.on(AppPalette.primary)),
           ),
       ],
     );
@@ -576,11 +576,11 @@ class _ServiceProviderHomeScreenState extends State<ServiceProviderHomeScreen> {
         );
       }
       if (feedsController.feeds.isEmpty) {
-        return const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: AppEmptyState(
             icon: Iconsax.document_text,
-            title: 'No popular feeds',
+            title: 'No popular feeds'.tr,
           ),
         );
       }

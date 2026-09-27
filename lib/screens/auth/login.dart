@@ -10,8 +10,11 @@ import '../../widgets/custom_snackbar.dart';
 import '../../widgets/legal_widgets.dart';
 import '../CompanyTransport/complete_company_profile.dart';
 import '../CompanyServiceProvider/complete_profile_screen.dart';
+import '../../widgets/language_selection_bottom_sheet.dart';
+import '../../core/localization/localization_service.dart';
 import 'onboarding_screen.dart';
 import 'forgot_password.dart';
+
 
 // ─── Constants ────────────────────────────────────────────────────────────
 
@@ -151,19 +154,50 @@ class _LoginScreenState extends State<LoginScreen>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            GestureDetector(
-              onTap: () => Navigator.canPop(context)
-                  ? Navigator.pop(context)
-                  : Get.offAll(() => const OnboardingScreen(), transition: Transition.fadeIn),
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.canPop(context)
+                      ? Navigator.pop(context)
+                      : Get.offAll(() => const OnboardingScreen(), transition: Transition.fadeIn),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
+                  ),
                 ),
-                child: const Icon(Icons.arrow_back_rounded, color: Colors.white, size: 20),
-              ),
+                GestureDetector(
+                  onTap: () => LanguageSelectionBottomSheet.show(context),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.language, color: Colors.white, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          LocalizationService.to.currentLanguageName,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 20),
             Row(
@@ -200,9 +234,9 @@ class _LoginScreenState extends State<LoginScreen>
               ],
             ),
             const SizedBox(height: 16),
-            const Text(
-              'Welcome back!',
-              style: TextStyle(
+            Text(
+              'Welcome back'.tr,
+              style: const TextStyle(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -212,7 +246,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              'Sign in to continue to your account',
+              'Sign in to continue to your account'.tr,
               style: TextStyle(
                 fontSize: 14,
                 color: Colors.white.withValues(alpha: 0.85),
@@ -268,9 +302,9 @@ class _LoginScreenState extends State<LoginScreen>
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Poppins',
                   ),
-                  tabs: const [
-                    Tab(text: 'Email & Password'),
-                    Tab(text: 'Phone OTP'),
+                  tabs: [
+                    Tab(text: 'Email & Password'.tr),
+                    Tab(text: 'Phone OTP'.tr),
                   ],
                 ),
               ),
@@ -343,9 +377,9 @@ class _LoginScreenState extends State<LoginScreen>
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
-              child: const Text(
-                'Forgot Password?',
-                style: TextStyle(
+              child: Text(
+                'Forgot Password?'.tr,
+                style: const TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   fontFamily: 'Poppins',
@@ -355,10 +389,11 @@ class _LoginScreenState extends State<LoginScreen>
           ),
           const SizedBox(height: 24),
           Obx(() => _primaryButton(
-            label: 'Log In',
+            label: 'Sign In'.tr,
             loading: _ctrl.isLoading.value,
             onTap: _loginWithPassword,
           )),
+
           const SizedBox(height: 16),
           legalLoginNotice(),
           const SizedBox(height: 16),
@@ -431,19 +466,20 @@ class _LoginScreenState extends State<LoginScreen>
                     minimumSize: Size.zero,
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text(
-                    'Resend OTP',
-                    style: TextStyle(fontSize: 12, fontFamily: 'Poppins'),
+                  child: Text(
+                    'Resend OTP'.tr,
+                    style: const TextStyle(fontSize: 12, fontFamily: 'Poppins'),
                   ),
                 ),
               ),
             ],
             const SizedBox(height: 24),
             _primaryButton(
-              label: otpSent ? 'Verify & Log In' : 'Send OTP',
+              label: otpSent ? 'Verify OTP'.tr : 'Send OTP'.tr,
               loading: _ctrl.isLoading.value,
               onTap: otpSent ? _loginWithOtp : _sendOtp,
             ),
+
             const SizedBox(height: 24),
             _signUpRow(),
             const SizedBox(height: 8),
@@ -564,9 +600,9 @@ class _LoginScreenState extends State<LoginScreen>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text(
-            "Don't have an account?",
-            style: TextStyle(fontSize: 13, color: _textGrey, fontFamily: 'Poppins'),
+          Text(
+            "Don't have an account?".tr,
+            style: const TextStyle(fontSize: 13, color: _textGrey, fontFamily: 'Poppins'),
           ),
           const SizedBox(width: 6),
           GestureDetector(
@@ -574,9 +610,9 @@ class _LoginScreenState extends State<LoginScreen>
               () => const OnboardingScreen(),
               transition: Transition.rightToLeft,
             ),
-            child: const Text(
-              'Sign Up',
-              style: TextStyle(
+            child: Text(
+              'Sign Up'.tr,
+              style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: _primary,
@@ -585,6 +621,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
           ),
         ],
+
       ),
     );
   }

@@ -17,8 +17,11 @@ import '../shared/subscription_screen.dart';
 import '../shared/issues/issues_screen.dart';
 import '../shared/legal_screen.dart';
 import '../Professional/KYC/kyc_screen.dart';
+import '../../widgets/language_selection_bottom_sheet.dart';
+import '../../core/localization/localization_service.dart';
 import 'edit_company_profile.dart';
 import 'switch_profile_popup.dart';
+
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const _primary = Color(0xFFF36969);
@@ -636,10 +639,10 @@ class CompanyProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
-                'Language',
-                style: TextStyle(
+                'Language'.tr,
+                style: const TextStyle(
                   fontSize: 14,
                   color: _textDark,
                   fontFamily: 'Poppins',
@@ -647,31 +650,36 @@ class CompanyProfileScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: _bg,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: _border),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Text(
-                    'English',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: _textDark,
-                      fontFamily: 'Poppins',
+            InkWell(
+              onTap: () => LanguageSelectionBottomSheet.show(),
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: _bg,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: _border),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      LocalizationService.to.currentLanguageName,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: _textDark,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  ),
-                  SizedBox(width: 4),
-                  Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 18,
-                    color: _textGrey,
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 18,
+                      color: _textGrey,
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

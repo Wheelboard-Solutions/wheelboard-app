@@ -171,6 +171,24 @@ class ServiceModel {
     );
   }
 
+  /// The address the Service Provider saved on this listing.
+  ///
+  /// The single source of truth for "where is this service", used to pre-fill
+  /// the Transport user's assignment form. `location` and `fullAddress` carry
+  /// the same value from the API; the city is the last resort. Empty means the
+  /// listing genuinely has no address — never a reason to fall back to the
+  /// Transport user's own address or GPS.
+  String get resolvedLocation {
+    final address = (location ?? fullAddress).trim();
+    if (address.isNotEmpty) return address;
+    return city.trim();
+  }
+
+  /// Whether the provider pinned this listing to exact coordinates.
+  ///
+  /// Null (not 0) when unknown, so a listing on the equator is still a pin.
+  bool get hasCoordinates => latitude != null && longitude != null;
+
   /// Categories as a list. The backend `category` is a single string but the
   /// app lets providers pick several (joined with ", "), so split it back into
   /// individual badges for display. Falls back to [businessType].

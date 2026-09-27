@@ -44,6 +44,12 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
   bool _locationFromService = false;
   bool _fetchingLocation = false;
 
+  /// The selected service's own pin, shown so the Transport user can see
+  /// exactly where the provider is. Null when the listing was saved without
+  /// coordinates — never filled from the Transport user's own position.
+  double? _latitude;
+  double? _longitude;
+
   @override
   void initState() {
     super.initState();
@@ -57,6 +63,8 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
     _vehicleController = TextEditingController();
     _locationController = TextEditingController(text: _serviceAddress);
     _locationFromService = _locationController.text.isNotEmpty;
+    _latitude = widget.service.latitude;
+    _longitude = widget.service.longitude;
     _descriptionController = TextEditingController();
 
     // Initialize fleet controller and fetch vehicles
@@ -65,15 +73,29 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
     _ensureServiceLocation();
   }
 
-  /// The address the provider published for this service.
+  /// The address the provider published for this service — the single source
+  /// of truth for the assignment, resolved by the model itself.
+  String get _serviceAddress => widget.service.resolvedLocation;
+
+  /// Re-seed when the popup is handed a DIFFERENT service.
   ///
-  /// `fullAddress` and `location` are the same value from the API; the city is
-  /// the last resort, and an empty string means the listing genuinely has no
-  /// address rather than that one failed to load.
-  String get _serviceAddress {
-    final address = (widget.service.location ?? widget.service.fullAddress).trim();
-    if (address.isNotEmpty) return address;
-    return widget.service.city.trim();
+  /// Each assignment normally opens a fresh dialog, so `initState` alone is
+  /// enough today. This makes the guarantee explicit rather than incidental:
+  /// if the same popup is ever reused for another service, Service A's address
+  /// and pin can never be submitted against Service B.
+  @override
+  void didUpdateWidget(covariant ServiceDetailsPopup oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.service.serviceId == widget.service.serviceId) return;
+
+    setState(() {
+      _locationController.text = _serviceAddress;
+      _locationFromService = _locationController.text.isNotEmpty;
+      _latitude = widget.service.latitude;
+      _longitude = widget.service.longitude;
+      _fetchingLocation = false;
+    });
+    _ensureServiceLocation();
   }
 
   /// Fill Service Location from the service being assigned.
@@ -86,6 +108,12 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
   /// carried no address, by fetching the listing once.
   ///
   /// Only ever fills a blank field: a company edit is never overwritten.
+  ///
+  /// Keyed on the ADDRESS alone, not on the pin. An address already present
+  /// means the listing was detail-loaded, so its coordinates are whatever the
+  /// provider saved — including none at all. Fetching again to "find" a pin
+  /// that does not exist would spend a request per assignment on every
+  /// un-pinned listing and come back with nothing.
   Future<void> _ensureServiceLocation() async {
     if (_locationController.text.trim().isNotEmpty) return;
 
@@ -104,9 +132,7 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
       final detail = body is Map<String, dynamic>
           ? ServiceModel.fromJson(body)
           : null;
-      final resolved = (detail?.location ?? detail?.fullAddress ?? '').trim();
-      final address =
-          resolved.isNotEmpty ? resolved : (detail?.city ?? '').trim();
+      final address = detail?.resolvedLocation ?? '';
 
       if (!mounted) return;
       setState(() {
@@ -115,6 +141,12 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
         if (address.isNotEmpty && _locationController.text.trim().isEmpty) {
           _locationController.text = address;
           _locationFromService = true;
+        }
+        // The pin is the provider's, never the company's, so it is filled
+        // whenever the listing has one and we did not already have it.
+        if (detail != null && detail.hasCoordinates) {
+          _latitude ??= detail.latitude;
+          _longitude ??= detail.longitude;
         }
         _fetchingLocation = false;
       });
@@ -565,6 +597,29 @@ class _ServiceDetailsPopupState extends State<ServiceDetailsPopup> {
                       ? 'Please enter the location for the service'
                       : null,
                 ),
+                if (_latitude != null && _longitude != null) ...[
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      const Icon(Icons.place_outlined,
+                          size: 14, color: Color(0xFF00B894)),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          'Provider pinned at '
+                          '${_latitude!.toStringAsFixed(6)}, '
+                          '${_longitude!.toStringAsFixed(6)}',
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF00B894),
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 6),
                 Text(
                   _locationFromService
