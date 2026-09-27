@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -16,45 +17,52 @@ class ProfessionalHeaderWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: AppPalette.brandGradient,
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
       ),
-      child: SafeArea(
-        bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          child: Row(
-            children: [
-              _circleAction(
-                icon: Iconsax.menu_1,
-                onTap: () => Get.to(const YourProfileScreen()),
-              ),
-              const Spacer(),
-              Text(
-                'WHEELBOARD',
-                style: AppText.h2.on(Colors.white).copyWith(letterSpacing: 1.4),
-              ),
-              const Spacer(),
-              _circleAction(
-                icon: Iconsax.search_normal_1,
-                onTap: () => Get.to(() => const ProfessionalSearchScreen()),
-              ),
-              AppSpacing.hGapSm,
-              Obx(() {
-                final ctrl = Get.isRegistered<NotificationController>()
-                    ? Get.find<NotificationController>()
-                    : Get.put(NotificationController());
-                final unread = ctrl.unreadCount;
-                return _circleAction(
-                  icon: Iconsax.notification,
-                  badge: unread > 0 ? (unread > 99 ? '99+' : '$unread') : null,
-                  onTap: () => Get.to(() => const Notification1Screen()),
-                );
-              }),
-            ],
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: AppPalette.brandGradient,
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+        ),
+        child: SafeArea(
+          bottom: false,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: Row(
+              children: [
+                _circleAction(
+                  icon: Iconsax.menu_1,
+                  onTap: () => Get.to(const YourProfileScreen()),
+                ),
+                const Spacer(),
+                Text(
+                  'WHEELBOARD',
+                  style: AppText.h2.on(Colors.white).copyWith(letterSpacing: 1.4),
+                ),
+                const Spacer(),
+                _circleAction(
+                  icon: Iconsax.search_normal_1,
+                  onTap: () => Get.to(() => const ProfessionalSearchScreen()),
+                ),
+                AppSpacing.hGapSm,
+                Obx(() {
+                  final ctrl = Get.isRegistered<NotificationController>()
+                      ? Get.find<NotificationController>()
+                      : Get.put(NotificationController());
+                  final unread = ctrl.unreadCount;
+                  return _circleAction(
+                    icon: Iconsax.notification,
+                    badge: unread > 0 ? (unread > 99 ? '99+' : '$unread') : null,
+                    onTap: () => Get.to(() => const Notification1Screen()),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
       ),

@@ -84,39 +84,36 @@ class ProfessionalHomePageScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppPalette.bg,
-      body: SafeArea(
-        bottom: false,
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const ProfessionalHeaderWidget(),
-                  const Padding(
-                    padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg,
-                        AppSpacing.lg, AppSpacing.md),
-                    child: BannerHeaderWidget(),
-                  ),
-                  _quickActions(assignedTripController),
-                  AppSpacing.vGapLg,
-                  _nextTripSection(assignedTripController),
-                  AppSpacing.vGapLg,
-                  _jobsSection(),
-                  AppSpacing.vGapLg,
-                  _popularFeedsSection(),
-                  SizedBox(height: bottomInset + 90),
-                ],
-              ),
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const ProfessionalHeaderWidget(),
+                const Padding(
+                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg,
+                      AppSpacing.lg, AppSpacing.md),
+                  child: BannerHeaderWidget(),
+                ),
+                _quickActions(assignedTripController),
+                AppSpacing.vGapLg,
+                _nextTripSection(assignedTripController),
+                AppSpacing.vGapLg,
+                _jobsSection(),
+                AppSpacing.vGapLg,
+                _popularFeedsSection(),
+                SizedBox(height: bottomInset + 90),
+              ],
             ),
-            Positioned(
-              right: AppSpacing.lg,
-              bottom: bottomInset - 40,
-              child: _sosButton(),
-            ),
-          ],
-        ),
+          ),
+          Positioned(
+            right: AppSpacing.lg,
+            bottom: bottomInset - 40,
+            child: _sosButton(),
+          ),
+        ],
       ),
     );
   }
