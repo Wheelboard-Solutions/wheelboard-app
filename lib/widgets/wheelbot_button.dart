@@ -99,36 +99,27 @@ class WheelbotFloatingButton extends StatelessWidget {
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            borderRadius: AppRadius.rPill,
+            customBorder: const CircleBorder(),
             onTap: () => WheelbotSheet.show(context, roleContext: roleContext),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              width: 50,
+              height: 50,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 gradient: AppPalette.brandGradient,
-                borderRadius: AppRadius.rPill,
+                shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
                     color: AppPalette.primary.withValues(alpha: 0.35),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
+                    blurRadius: 16,
+                    offset: const Offset(0, 6),
                   ),
                 ],
               ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.smart_toy_rounded, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    'WheelBot',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                ],
+              child: const Icon(
+                Icons.smart_toy_rounded,
+                color: Colors.white,
+                size: 24,
               ),
             ),
           ),

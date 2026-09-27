@@ -102,7 +102,7 @@ class _ProfessionalMainWrapperState extends State<ProfessionalMainWrapper>
             if (_tab.currentIndex.value == 0)
               const WheelbotFloatingButton(
                 roleContext: 'professional',
-                bottom: 170,
+                bottom: 94,
               ),
           ],
         ),
