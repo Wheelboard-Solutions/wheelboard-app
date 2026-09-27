@@ -98,7 +98,7 @@ class ProfessionalHomePageScreen extends StatelessWidget {
                   child: BannerHeaderWidget(),
                 ),
                 _quickActions(assignedTripController),
-                AppSpacing.vGapLg,
+                AppSpacing.vGapXl,
                 _nextTripSection(assignedTripController),
                 AppSpacing.vGapLg,
                 _jobsSection(),
@@ -126,25 +126,58 @@ class ProfessionalHomePageScreen extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          action(Iconsax.calendar_1, 'My Calendar'.tr,
-              () => Get.to(const CalendarScreen())),
-          AppSpacing.hGapSm,
-          action(Iconsax.location, 'Track My Trip'.tr, () => _openCurrentTrip(c)),
-          AppSpacing.hGapSm,
-          action(Iconsax.money_recive, 'Earning'.tr,
-              () => Get.to(const EarningSummaryScreen())),
-          AppSpacing.hGapSm,
-          action(Iconsax.receipt_text, 'Expenses'.tr,
-              () => Get.to(() => const ProfessionalExpensesScreen())),
-          AppSpacing.hGapSm,
-          action(Iconsax.teacher, 'My Learning'.tr,
-              () => Get.to(const MyLearningScreen())),
-          AppSpacing.hGapSm,
-          action(Iconsax.card, 'My Plans'.tr,
-              () => Get.to(() =>
-                  const SubscriptionScreen(category: 'professional'))),
+          Text(
+            'Quick Actions'.tr,
+            style: AppText.h3,
+          ),
+          AppSpacing.vGapMd,
+          Row(
+            children: [
+              action(
+                Iconsax.calendar_1,
+                'My Calendar'.tr,
+                () => Get.to(const CalendarScreen()),
+              ),
+              AppSpacing.hGapMd,
+              action(
+                Iconsax.location,
+                'Track My Trip'.tr,
+                () => _openCurrentTrip(c),
+              ),
+              AppSpacing.hGapMd,
+              action(
+                Iconsax.money_recive,
+                'Earning'.tr,
+                () => Get.to(const EarningSummaryScreen()),
+              ),
+            ],
+          ),
+          AppSpacing.vGapMd,
+          Row(
+            children: [
+              action(
+                Iconsax.receipt_text,
+                'Expenses'.tr,
+                () => Get.to(() => const ProfessionalExpensesScreen()),
+              ),
+              AppSpacing.hGapMd,
+              action(
+                Iconsax.teacher,
+                'My Learning'.tr,
+                () => Get.to(const MyLearningScreen()),
+              ),
+              AppSpacing.hGapMd,
+              action(
+                Iconsax.card,
+                'My Plans'.tr,
+                () => Get.to(() =>
+                    const SubscriptionScreen(category: 'professional')),
+              ),
+            ],
+          ),
         ],
       ),
     );
