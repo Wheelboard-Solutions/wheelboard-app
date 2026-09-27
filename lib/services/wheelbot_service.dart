@@ -42,8 +42,19 @@ class WheelbotService {
   }
 
   String _message(DioException e) {
-    if (e.error is ApiException) return (e.error as ApiException).message;
     final data = e.response?.data;
+
+    // WheelBot signals its own failures as { success: false, error: '<text>' },
+    // where `error` is already a user-facing sentence. Read that before falling
+    // back to the interceptor's ApiException, which only knows the generic
+    // status-code wording ("Server error. Please try again later.") because the
+    // chat endpoint does not use the standard `message` error shape.
+    if (data is Map && data['success'] == false) {
+      final chatError = data['error'];
+      if (chatError is String && chatError.trim().isNotEmpty) return chatError;
+    }
+
+    if (e.error is ApiException) return (e.error as ApiException).message;
     if (data is Map) {
       final error = data['error'] ?? data['message'];
       if (error is List) return error.join(', ');

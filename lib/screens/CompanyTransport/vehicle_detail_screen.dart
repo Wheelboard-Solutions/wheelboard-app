@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart' show LatLng;
 import 'package:iconsax/iconsax.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/network/vehicle_gps_socket_service.dart';
 import '../../controllers/Transport/fleet_controller.dart';
 import '../../models/get_vehicle_model.dart';
 import '../../services/verification_service.dart';
+import '../../utils/map_navigation_utils.dart';
+import '../../widgets/custom_snackbar.dart';
 import '../../widgets/skeletons.dart';
 import '../../widgets/smart_image.dart';
 import 'Lease/create_lease_wizard.dart';
@@ -204,7 +208,26 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   }
 
   // ── Data helpers ──────────────────────────────────────────────────────────
-  Map<String, dynamic>? get _driver => _detail?['driverInfo'] as Map<String, dynamic>?;
+  /// The driver assigned to this vehicle.
+  ///
+  /// `GET /fleet/vehicles/:id` returns this as `assignedDriver`; the screen used
+  /// to read `driverInfo`, a key the backend never sends, so the Assigned
+  /// Driver card never rendered. `driverInfo` is still accepted so an older
+  /// backend keeps working, and both spellings of each field are tolerated.
+  Map<String, dynamic>? get _driver {
+    final raw = _detail?['assignedDriver'] ?? _detail?['driverInfo'];
+    if (raw is! Map) return null;
+    final map = Map<String, dynamic>.from(raw);
+    final name = (map['name'] ?? map['driverName'] ?? '').toString();
+    if (name.trim().isEmpty) return null;
+    return {
+      ...map,
+      'driverName': name,
+      'driverMobile':
+          (map['phoneNumber'] ?? map['driverMobile'] ?? '').toString(),
+      'driverImage': (map['image'] ?? map['driverImage'] ?? '').toString(),
+    };
+  }
   Map<String, dynamic>? get _metrics => _detail?['metrics'] as Map<String, dynamic>?;
   List get _recentTrips => (_detail?['recentTrips'] as List?) ?? [];
   int get _totalTrips => (_detail?['totalTrips'] as num?)?.toInt() ?? 0;
@@ -701,24 +724,75 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
       if (hasLocation)
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
-          child: SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _openGpsLocation(latest),
-              icon: Icon(Iconsax.location, size: 16, color: statusColor),
-              label: Text(
-                'Open Latest Location',
-                style: TextStyle(
-                  color: statusColor,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w700,
+          child: Column(
+            children: [
+              Row(children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _openGpsLocation(latest),
+                    icon: Icon(Iconsax.location, size: 16, color: statusColor),
+                    label: Text(
+                      'View',
+                      style: TextStyle(
+                        color: statusColor,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: statusColor),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _navigateToVehicle(v, latest),
+                    icon: const Icon(Iconsax.routing,
+                        size: 16, color: Colors.white),
+                    label: const Text(
+                      'Navigate',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _primary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+              ]),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _shareLocation(v, latest, gps.stale),
+                  icon: const Icon(Iconsax.send_2, size: 16, color: _primary),
+                  label: Text(
+                    _driverPhone.isEmpty
+                        ? 'Share Location'
+                        : 'Send to ${_driver!['driverName']}',
+                    style: const TextStyle(
+                      color: _primary,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: _primary),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
+                  ),
                 ),
               ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: statusColor),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-            ),
+            ],
           ),
         ),
       if (_gpsPoints.isNotEmpty)
@@ -786,6 +860,63 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
+  }
+
+  /// The assigned driver's number, digits only. Empty when no driver is
+  /// assigned or the record carries no contact number.
+  String get _driverPhone => (_driver?['driverMobile']?.toString() ?? '')
+      .replaceAll(RegExp(r'[^0-9]'), '');
+
+  /// Turn-by-turn directions to the vehicle, through the app's existing map
+  /// launcher (native Maps first, browser last) rather than a second map SDK.
+  Future<void> _navigateToVehicle(Vehicle v, VehicleGpsPoint point) async {
+    final opened = await MapNavigationUtils.openDirections(
+      destination: LatLng(point.latitude, point.longitude),
+      destinationLabel: v.vehicleNumber,
+    );
+    if (!opened) {
+      SnackBarHelper.error('No maps app could open this location.');
+    }
+  }
+
+  /// Send the vehicle's position to the driver on it.
+  ///
+  /// Straight to the driver over WhatsApp when a number is on file — the same
+  /// `wa.me` deep link the service screens use — and otherwise out through the
+  /// system share sheet so the owner can still pass it to whoever is driving.
+  ///
+  /// A fix that has gone quiet is labelled "last known" with its timestamp: a
+  /// driver acting on a stale position needs to know it is stale.
+  Future<void> _shareLocation(
+    Vehicle v,
+    VehicleGpsPoint point,
+    bool stale,
+  ) async {
+    final recordedAt = DateTime.tryParse(point.recordedAt)?.toLocal();
+    final when = recordedAt == null
+        ? ''
+        : ' (${recordedAt.day}/${recordedAt.month} '
+            '${recordedAt.hour.toString().padLeft(2, '0')}:'
+            '${recordedAt.minute.toString().padLeft(2, '0')})';
+    final label = stale ? 'last known location' : 'current location';
+    final message = '${v.vehicleNumber} — $label$when: '
+        'https://www.google.com/maps?q=${point.latitude},${point.longitude}';
+
+    final phone = _driverPhone;
+    if (phone.isNotEmpty) {
+      final uri = Uri.parse(
+        'https://wa.me/$phone?text=${Uri.encodeComponent(message)}',
+      );
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return;
+      }
+      SnackBarHelper.error(
+        'WhatsApp is not available — opening share instead.',
+      );
+    }
+
+    await Share.share(message, subject: '${v.vehicleNumber} location');
   }
 
   Widget _buildDriverCard() {

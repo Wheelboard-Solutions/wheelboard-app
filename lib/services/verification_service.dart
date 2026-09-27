@@ -259,6 +259,23 @@ bool isPlausibleRegistration(String value) {
       RegExp(r'[0-9]').hasMatch(normalized);
 }
 
+/// Normalize a Driving Licence number to the compact upper-case form the
+/// backend and provider expect: `mh01 2011-0012345` becomes `MH0120110012345`.
+/// Only separators are removed, so a real licence number is never altered.
+String normalizeLicenceNumber(String value) =>
+    value.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+/// Deliberately permissive structural check, matching the backend's — its only
+/// job is to keep obviously empty or junk input from spending a paid provider
+/// call. Indian DL formats vary by issuing state.
+bool isPlausibleLicenceNumber(String value) {
+  final normalized = normalizeLicenceNumber(value);
+  return normalized.length >= 8 &&
+      normalized.length <= 20 &&
+      RegExp(r'[A-Z]').hasMatch(normalized) &&
+      RegExp(r'[0-9]').hasMatch(normalized);
+}
+
 /// Filename portion of a path. Handles both separators so it behaves the same
 /// on Android, iOS and desktop.
 String documentBasename(String filePath) {

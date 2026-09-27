@@ -1,11 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../../../core/auth/auth_service.dart';
 import '../../../core/navigation/app_routes.dart';
-import '../../../core/network/api_client.dart';
-import '../../../core/network/api_endpoints.dart';
 import '../../../services/profile_service.dart';
+import '../../../services/verification_service.dart';
 import '../../../theme/design_system.dart';
 import '../../../widgets/custom_snackbar.dart';
 
@@ -13,7 +15,8 @@ import '../../../widgets/custom_snackbar.dart';
 ///
 /// 1:1 with the web `src/app/professional/complete-profile/page.tsx`:
 /// same fields (address / city / state / zip + DOB / vehicleType / licenseNumber),
-/// same "Verify License" step (`GET /fleet/drivers/verify/license`), and the same
+/// same "Verify License" step (the licence image is read by OCR — the provider
+/// sells no licence-number + date-of-birth lookup), and the same
 /// `PUT /users/profile` payload — the verified flags (`isVerified` / `kycStatus` /
 /// `kycDetails`) are merged into the profile exactly like the web page does.
 ///
@@ -127,48 +130,108 @@ class _ProfessionalCompleteProfileScreenState
     }
   }
 
-  // ── Verify License (mirrors web handleVerifyDL) ────────────────────────
+  // ── Verify License — reads the licence from a photo of it ──────────────
+  //
+  // The provider's only Driving Licence product is OCR, so the licence itself
+  // is the input; the number and date of birth are filled in from what it
+  // reads rather than typed in to look it up.
   Future<void> _verifyLicense() async {
-    final license = _licenseCtrl.text.trim();
-    if (license.isEmpty || _dateOfBirth.isEmpty) {
-      SnackBarHelper.error('Please enter License Number and Date of Birth');
-      return;
-    }
+    if (_verifying) return;
+
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: AppPalette.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined,
+                  color: AppPalette.primary),
+              title: Text('Take a photo of your licence',
+                  style: AppText.body.on(AppPalette.textDark)),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined,
+                  color: AppPalette.primary),
+              title: Text('Choose from gallery',
+                  style: AppText.body.on(AppPalette.textDark)),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    // Downscaled before upload: the OCR endpoint caps a document at 5MB.
+    final picked = await ImagePicker()
+        .pickImage(source: source, imageQuality: 70, maxWidth: 1600);
+    if (picked == null || !mounted) return;
+
     setState(() => _verifying = true);
     try {
-      // Same call as web `authAPI.verifyDriverLicense(licenseNumber, dateOfBirth)`.
-      final raw = await ApiClient.instance.get<dynamic>(
-        ApiEndpoints.fleet.verifyDriverLicense,
-        queryParameters: {
-          'licenseNumber': license,
-          'dateOfBirth': _dateOfBirth,
-        },
-      );
-      final data = raw is Map<String, dynamic>
-          ? (raw['data'] is Map<String, dynamic>
-              ? raw['data'] as Map<String, dynamic>
-              : raw)
-          : <String, dynamic>{};
-      final name = (data['name'] ?? data['holderName'] ?? '').toString();
-      if (name.isNotEmpty) {
-        final addr = (data['address'] ?? '').toString();
-        setState(() {
-          _dlVerified = true;
-          _verifiedDetails = data;
-          // Auto-fill address if available and empty (web behaviour).
-          if (addr.isNotEmpty && _addressCtrl.text.trim().isEmpty) {
-            _addressCtrl.text = addr;
-          }
-        });
-        SnackBarHelper.success('License Verified: $name');
-      } else {
-        SnackBarHelper.error('Could not verify license details');
+      final result =
+          await VerificationService().verifyDriverLicence(File(picked.path));
+      if (!mounted) return;
+
+      final dl = result.data;
+      if (!result.verified || dl == null) {
+        // Backend-authored and always user-safe.
+        SnackBarHelper.error(result.message);
+        return;
       }
+
+      setState(() {
+        _dlVerified = true;
+        _verifiedDetails = {
+          'name': dl.name,
+          'licenseNumber': dl.licenseNumber,
+          'dateOfBirth': dl.dateOfBirth,
+          'address': dl.address,
+          'expiryDate': dl.expiryDate,
+        };
+        // Fill in what the licence itself says, so the profile carries the
+        // verified values rather than whatever was typed before.
+        final licence = dl.licenseNumber?.trim() ?? '';
+        if (licence.isNotEmpty) _licenseCtrl.text = licence;
+
+        final dob = _isoFromDDMMYYYY(dl.dateOfBirth?.trim() ?? '');
+        if (dob != null) _dateOfBirth = dob;
+
+        final address = dl.address?.trim() ?? '';
+        if (address.isNotEmpty && _addressCtrl.text.trim().isEmpty) {
+          _addressCtrl.text = address;
+        }
+      });
+      SnackBarHelper.success(result.message);
     } catch (e) {
-      SnackBarHelper.error('Verification failed. Please check the details.');
+      if (mounted) {
+        SnackBarHelper.error('Verification failed. Please try again.');
+      }
     } finally {
       if (mounted) setState(() => _verifying = false);
     }
+  }
+
+  /// `DD/MM/YYYY` (what the provider returns) to the `YYYY-MM-DD` this screen
+  /// stores. Parsed explicitly so 10/02/2030 is never read as 2 October.
+  String? _isoFromDDMMYYYY(String value) {
+    final parts = value.split('/');
+    if (parts.length != 3) return null;
+    final d = int.tryParse(parts[0]);
+    final m = int.tryParse(parts[1]);
+    final y = int.tryParse(parts[2]);
+    if (d == null || m == null || y == null) return null;
+    return '${y.toString().padLeft(4, '0')}-'
+        '${m.toString().padLeft(2, '0')}-'
+        '${d.toString().padLeft(2, '0')}';
   }
 
   String? _validate() {
@@ -349,10 +412,8 @@ class _ProfessionalCompleteProfileScreenState
 
   // ── Verify-license row (button + verified summary) ─────────────────────
   Widget _verifyRow() {
-    final canVerify = _licenseCtrl.text.trim().isNotEmpty &&
-        _dateOfBirth.isNotEmpty &&
-        !_verifying &&
-        !_dlVerified;
+    // The licence photo IS the input, so there is nothing to fill in first.
+    final canVerify = !_verifying && !_dlVerified;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -367,10 +428,10 @@ class _ProfessionalCompleteProfileScreenState
             ),
             label: Text(
               _verifying
-                  ? 'Verifying…'
+                  ? 'Reading licence…'
                   : _dlVerified
                       ? 'Verified'
-                      : 'Verify License',
+                      : 'Scan License',
               style: AppText.subtitle.on(
                 _dlVerified ? AppPalette.green : AppPalette.blue,
               ),

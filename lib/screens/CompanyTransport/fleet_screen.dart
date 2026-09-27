@@ -1514,37 +1514,67 @@ class _DriverModalState extends State<_DriverModal> {
     super.dispose();
   }
 
-  /// Driving Licence verification from the licence DOCUMENT.
+  /// Driving Licence verification from a photo of the licence.
   ///
-  /// The current provider contract reads every field by OCR from the licence
-  /// image, so this uploads a photo instead of looking the licence up by number
-  /// and date of birth. On success it auto-fills and locks name / licence /
-  /// DOB / address / category-detail / licence-expiry.
+  /// The provider's only Driving Licence product reads the licence out of the
+  /// image, so the company photographs the driver's licence (or picks it from
+  /// the gallery) instead of typing a number and date of birth. On success it
+  /// auto-fills and locks name / licence / DOB / address / category-detail /
+  /// licence-expiry.
   ///
   /// Verification is a convenience here — a failure never blocks adding the
   /// driver, and the form is left fully editable.
   Future<void> _verify() async {
     if (_verifying) return;
 
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      backgroundColor: _card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Iconsax.camera, color: _primary),
+              title: const Text(
+                'Take a photo of the licence',
+                style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+            ListTile(
+              leading: const Icon(Iconsax.gallery, color: _primary),
+              title: const Text(
+                'Choose from gallery',
+                style: TextStyle(fontSize: 14, fontFamily: 'Poppins'),
+              ),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (source == null || !mounted) return;
+
+    // Downscaled before upload: the OCR endpoint caps a document at 5MB, and a
+    // modern phone camera clears that on its own.
     final picked = await ImagePicker().pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 85,
-      maxWidth: 2000,
+      source: source,
+      imageQuality: 70,
+      maxWidth: 1600,
     );
     if (picked == null || !mounted) return;
-
-    final document = File(picked.path);
-    final fileError = validateDocumentFile(document);
-    if (fileError != null) {
-      SnackBarHelper.warning(fileError);
-      return;
-    }
 
     setState(() => _verifying = true);
 
     VerificationResult<DrivingLicenceData> result;
     try {
-      result = await widget.ctrl.verifyDriverLicenceDocument(document);
+      result = await widget.ctrl.verifyDriverLicenceDocument(File(picked.path));
     } finally {
       if (mounted) setState(() => _verifying = false);
     }
@@ -1579,11 +1609,11 @@ class _DriverModalState extends State<_DriverModal> {
       _categoryDetailCtrl.text = classes.join(', ');
       locked.add('categoryDetail');
     }
-    // The OCR response gives dates as DD/MM/YYYY; parsed explicitly so
+    // The provider gives dates as DD/MM/YYYY; parsed explicitly so
     // 10/02/2030 is never read as 2 October.
-    final dob = _parseDDMMYYYY(dl.dateOfBirth?.trim() ?? '');
-    if (dob != null) {
-      _dob = dob;
+    final resolvedDob = _parseDDMMYYYY(dl.dateOfBirth?.trim() ?? '');
+    if (resolvedDob != null) {
+      _dob = resolvedDob;
       locked.add('dob');
     }
     final expiry = _parseDDMMYYYY(dl.expiryDate?.trim() ?? '');
@@ -1593,7 +1623,11 @@ class _DriverModalState extends State<_DriverModal> {
     }
 
     setState(() => _lockedFields.addAll(locked));
-    SnackBarHelper.success('Driving Licence verified');
+    // The backend authors this copy and it is always user-safe, so it is shown
+    // verbatim. A hardcoded 'Driving Licence verified' used to discard it —
+    // which hid the case where the licence verifies but some fields could not
+    // be read, leaving the form filled with almost nothing and no reason given.
+    SnackBarHelper.success(result.message);
   }
 
   DateTime? _parseDDMMYYYY(String value) {
@@ -1733,8 +1767,8 @@ class _DriverModalState extends State<_DriverModal> {
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Optional — upload a photo of the licence to auto-fill the '
-                    'details, or just enter them manually below.',
+                    'Optional — enter the licence number and date of birth to '
+                    'auto-fill the details, or just fill the form in below.',
                     style: TextStyle(
                       fontSize: 11,
                       color: _textGrey,
@@ -1742,19 +1776,68 @@ class _DriverModalState extends State<_DriverModal> {
                     ),
                   ),
                   const SizedBox(height: 10),
+                  // The two inputs the lookup runs on. They live here rather
+                  // than further down the form so the whole verification step
+                  // reads as one block: type these two, tap Verify, the rest
+                  // fills itself in.
+                  _ModalField(
+                    'License Number',
+                    _licenseCtrl,
+                    hint: 'DL1234567890',
+                    enabled: !_isLocked('license'),
+                  ),
+                  const SizedBox(height: 10),
+                  GestureDetector(
+                    onTap: _isLocked('dob') ? null : _pickDob,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _isLocked('dob')
+                            ? const Color(0xFFF3F4F6)
+                            : Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: _border),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Iconsax.calendar,
+                            size: 18,
+                            color: _textGrey,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            _dob == null
+                                ? 'Date of Birth'
+                                : _fmtDate(_dob!),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _dob == null
+                                  ? const Color(0xFF9CA3AF)
+                                  : _textDark,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   SizedBox(
                     width: double.infinity,
                     child: GestureDetector(
-                      // Only the in-flight state gates this. The handler picks
-                      // the document itself, so there is no licence number or
-                      // date of birth to require first — the current provider
-                      // contract reads both from the licence image.
+                      // Always available: the licence photo IS the input, so
+                      // there is nothing to fill in first.
                       onTap: _verifying ? null : _verify,
                       child: Container(
                         // 44dp keeps this a comfortable touch target.
                         height: 44,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
+                          // Greyed only while a licence is being read.
                           color: _verifying ? _border : _primaryLight,
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
@@ -1775,7 +1858,7 @@ class _DriverModalState extends State<_DriverModal> {
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Verifying Driving Licence...',
+                                    'Reading the licence...',
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: _textGrey,
@@ -1789,13 +1872,13 @@ class _DriverModalState extends State<_DriverModal> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    Iconsax.document_upload,
+                                    Iconsax.camera,
                                     size: 16,
                                     color: _primary,
                                   ),
                                   SizedBox(width: 8),
                                   Text(
-                                    'Upload Licence & Verify',
+                                    'Scan Licence to Auto-fill',
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: _primary,
