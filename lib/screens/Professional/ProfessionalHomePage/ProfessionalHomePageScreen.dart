@@ -18,7 +18,6 @@ import '../MyLearning/my_learning_screen.dart';
 import '../SOS/SOSScreen.dart';
 import '../TrackTrip/TrackTripScreen.dart';
 import '../../shared/subscription_screen.dart';
-import '../widgets/banner_header_widget.dart';
 import '../widgets/job_card_widget.dart';
 import '../widgets/professional_header_widget.dart';
 import '../widgets/quick_action_button_widget.dart';
@@ -92,11 +91,7 @@ class ProfessionalHomePageScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const ProfessionalHeaderWidget(),
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg,
-                      AppSpacing.lg, AppSpacing.md),
-                  child: BannerHeaderWidget(),
-                ),
+                AppSpacing.vGapLg,
                 _quickActions(assignedTripController),
                 AppSpacing.vGapXl,
                 _nextTripSection(assignedTripController),
