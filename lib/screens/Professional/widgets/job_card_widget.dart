@@ -91,7 +91,7 @@ class JobCardWidget extends StatelessWidget {
                 _chip(Iconsax.people, '$applicants openings'),
             ]),
           ],
-          AppSpacing.vGapLg,
+          AppSpacing.vGapMd,
           Row(children: [
             Expanded(
               child: AppSecondaryButton(

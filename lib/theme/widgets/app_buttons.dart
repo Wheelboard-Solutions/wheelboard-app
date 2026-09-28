@@ -12,6 +12,7 @@ class AppPrimaryButton extends StatelessWidget {
   final bool loading;
   final bool expand;
   final Color color;
+  final EdgeInsetsGeometry? padding;
 
   const AppPrimaryButton({
     super.key,
@@ -21,6 +22,7 @@ class AppPrimaryButton extends StatelessWidget {
     this.loading = false,
     this.expand = true,
     this.color = AppPalette.primary,
+    this.padding,
   });
 
   @override
@@ -34,12 +36,12 @@ class AppPrimaryButton extends StatelessWidget {
               child: CircularProgressIndicator(
                   strokeWidth: 2, color: Colors.white))
           : (icon != null ? Icon(icon, size: 18) : const SizedBox.shrink()),
-      label: Text(label, style: AppText.subtitle.on(Colors.white).size(15)),
+      label: Text(label, style: AppText.subtitle.on(Colors.white)),
       style: ElevatedButton.styleFrom(
         backgroundColor: color,
         foregroundColor: Colors.white,
         disabledBackgroundColor: color.withValues(alpha: 0.5),
-        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 18),
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: AppRadius.rLg),
         elevation: 0,
       ),
@@ -55,6 +57,7 @@ class AppSecondaryButton extends StatelessWidget {
   final IconData? icon;
   final bool expand;
   final Color color;
+  final EdgeInsetsGeometry? padding;
 
   const AppSecondaryButton({
     super.key,
@@ -63,6 +66,7 @@ class AppSecondaryButton extends StatelessWidget {
     this.icon,
     this.expand = true,
     this.color = AppPalette.primary,
+    this.padding,
   });
 
   @override
@@ -74,7 +78,7 @@ class AppSecondaryButton extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         foregroundColor: color,
         side: BorderSide(color: color),
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        padding: padding ?? const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
         shape: RoundedRectangleBorder(borderRadius: AppRadius.rLg),
       ),
     );
