@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../screens/shared/blocked_users_screen.dart';
 import '../screens/shared/legal_screen.dart';
 
 // Design tokens (match the app's legal/auth styling)
@@ -102,7 +103,8 @@ Widget legalLoginNotice({double fontSize = 12}) {
 }
 
 /// A reusable "Legal" section for any Settings/Profile screen:
-/// Privacy Policy · Terms & Conditions · Contact Support · About Wheelboard.
+/// Privacy Policy · Terms & Conditions · Blocked users · Contact Support ·
+/// About Wheelboard.
 class LegalSettingsSection extends StatelessWidget {
   const LegalSettingsSection({super.key});
 
@@ -136,6 +138,9 @@ class LegalSettingsSection extends StatelessWidget {
               _divider(),
               _tile(Icons.gavel_rounded, 'Terms & Conditions',
                   openTermsAndConditions),
+              _divider(),
+              _tile(Icons.block_rounded, 'Blocked users',
+                  () => Get.to(() => const BlockedUsersScreen())),
               _divider(),
               _tile(Icons.support_agent_outlined, 'Contact Support',
                   () => Get.to(() => const ContactSupportScreen())),
