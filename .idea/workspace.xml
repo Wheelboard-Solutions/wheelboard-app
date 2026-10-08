@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="61ff8638-6365-49c2-977b-5ac7f2efd355" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/lib/screens/Professional/widgets/job_card_widget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/Professional/widgets/job_card_widget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/theme/widgets/app_buttons.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/theme/widgets/app_buttons.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screens/CompanyTransport/home_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screens/CompanyTransport/home_screen.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,10 +39,10 @@
     <commands />
     <urls />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 4,
-  "fromUser": false
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 4,
+  &quot;fromUser&quot;: false
+}</component>
   <component name="ProjectId" id="3JwaizCUVlFeOt5znCdo0MIukZq" />
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1" />
@@ -72,6 +72,7 @@
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
+    "settings.editor.selected.configurable": "device.screenshot",
     "show.migrate.to.gradle.popup": "false"
   }
 }]]></component>
