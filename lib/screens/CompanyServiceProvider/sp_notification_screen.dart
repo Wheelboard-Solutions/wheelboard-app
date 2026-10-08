@@ -36,11 +36,15 @@ class SpNotificationScreen extends StatelessWidget {
         elevation: 0,
         scrolledUnderElevation: 1,
         shadowColor: _border,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: _textDark, size: 20),
-          onPressed: () => Get.back(),
-        ),
+        // Also used as a bottom-nav tab, where there is nothing to go back to.
+        automaticallyImplyLeading: false,
+        leading: ModalRoute.of(context)?.canPop ?? false
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: _textDark, size: 20),
+                onPressed: () => Get.back(),
+              )
+            : null,
         title: const Text(
           'Notifications',
           style: TextStyle(

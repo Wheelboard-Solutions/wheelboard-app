@@ -29,7 +29,7 @@ class MapNavigationUtils {
     if (!kIsWeb && Platform.isIOS) {
       candidates.add(
         Uri.parse(
-          'http://maps.apple.com/?daddr=$destinationParam&dirflg=d'
+          'https://maps.apple.com/?daddr=$destinationParam&dirflg=d'
           '${originParam != null ? '&saddr=$originParam' : ''}',
         ),
       );
@@ -88,7 +88,7 @@ class MapNavigationUtils {
     if (!kIsWeb && Platform.isIOS) {
       candidates.add(
         Uri.parse(
-          'http://maps.apple.com/?daddr=$encoded&dirflg=d'
+          'https://maps.apple.com/?daddr=$encoded&dirflg=d'
           '${originParam != null ? '&saddr=$originParam' : ''}',
         ),
       );

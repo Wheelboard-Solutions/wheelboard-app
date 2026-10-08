@@ -223,6 +223,7 @@ class EarningSummaryScreen extends StatelessWidget {
     }
     return ListView.separated(
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: c.transactions.length,
       separatorBuilder: (_, __) => AppSpacing.vGapSm,

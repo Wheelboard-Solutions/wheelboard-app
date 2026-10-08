@@ -258,6 +258,7 @@ class _TripProgressScreenState extends State<TripProgressScreen>
           // 2×2 info cards
           GridView.count(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             crossAxisCount: 2,
             childAspectRatio: 2.2,

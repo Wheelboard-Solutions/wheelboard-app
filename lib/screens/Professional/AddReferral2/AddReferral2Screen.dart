@@ -547,6 +547,7 @@ class _AddReferral2ScreenState extends State<AddReferral2Screen> {
             constraints: const BoxConstraints(maxHeight: 200),
             child: ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               itemCount: _locationSuggestions.length,
               separatorBuilder: (_, __) => const Divider(height: 1),
               itemBuilder: (context, index) {

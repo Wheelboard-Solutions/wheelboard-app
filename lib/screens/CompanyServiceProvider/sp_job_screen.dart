@@ -95,11 +95,15 @@ class _SpJobScreenState extends State<SpJobScreen> {
         elevation: 0,
         scrolledUnderElevation: 1,
         shadowColor: _border,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded,
-              color: _textDark, size: 20),
-          onPressed: () => Get.back(),
-        ),
+        // Also used as a bottom-nav tab, where there is nothing to go back to.
+        automaticallyImplyLeading: false,
+        leading: ModalRoute.of(context)?.canPop ?? false
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                    color: _textDark, size: 20),
+                onPressed: () => Get.back(),
+              )
+            : null,
         title: Text(
           'My Job Listings',
           style: GoogleFonts.poppins(
@@ -253,6 +257,7 @@ class _SpStatsGrid extends StatelessWidget {
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
+      padding: EdgeInsets.zero,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: 10,
       crossAxisSpacing: 10,

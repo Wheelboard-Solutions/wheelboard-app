@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get/get.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -62,6 +63,20 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      // Tapping outside a text field dismisses the keyboard. iOS number/phone
+      // pads have no Return/Done key, so without this the keyboard can't be
+      // closed and covers the form's submit button.
+      //
+      // The root AnnotatedRegion gives screens without an AppBar dark status
+      // bar icons; otherwise iOS keeps the white icons left behind by the last
+      // coloured AppBar, which vanish on white screens.
+      builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.dark,
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: child,
+        ),
+      ),
       initialRoute: AppRoutes.splash,
       getPages: AppPages.pages,
       unknownRoute: GetPage(

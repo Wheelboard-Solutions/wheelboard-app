@@ -603,6 +603,13 @@ class _FeedEndpoints {
   // POST   /feeds/:id/report
   String report(String id) => '/feeds/$id/report';
 
+  // POST   /feeds/users/:userId/block  — hide a user's posts and comments
+  // DELETE /feeds/users/:userId/block  — unblock
+  String blockUser(String userId) => '/feeds/users/$userId/block';
+
+  // GET    /feeds/blocked-users  — { users: [{ id, name, initials, blockedAt }] }
+  String get blockedUsers => '/feeds/blocked-users';
+
   // POST   /feeds/upload-image
   String get uploadImage => '/feeds/upload-image';
 

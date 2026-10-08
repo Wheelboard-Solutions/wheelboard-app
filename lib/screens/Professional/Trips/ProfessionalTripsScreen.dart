@@ -172,9 +172,9 @@ class _StatsGrid extends StatelessWidget {
               child: _StatCard(
                 icon: Iconsax.star1,
                 color: AppPalette.amber,
-                value: ctrl.rating.toStringAsFixed(1),
+                value: ctrl.rating?.toStringAsFixed(1) ?? '—',
                 label: 'Average Rating',
-                trailing: _StarRow(rating: ctrl.rating),
+                trailing: _StarRow(rating: ctrl.rating ?? 0),
               ),
             ),
             AppSpacing.hGapMd,

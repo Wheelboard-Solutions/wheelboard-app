@@ -173,6 +173,8 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildSliverHeader() {
     return SliverAppBar(
       expandedHeight: 0,
+      // 44pt avatar + 2×10pt vertical padding; the default 56pt overflowed.
+      toolbarHeight: 64,
       pinned: true,
       backgroundColor: _bg,
       elevation: 0,
@@ -458,6 +460,7 @@ class _HomeScreenState extends State<HomeScreen>
           const SizedBox(height: 14),
           GridView.builder(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _menuItems.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(

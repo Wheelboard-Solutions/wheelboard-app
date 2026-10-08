@@ -328,6 +328,26 @@ class PostController extends GetxController {
     }
   }
 
+  /// Blocks [userId]: the server hides their posts and comments from this
+  /// user's feed from now on; their posts already loaded are dropped here.
+  Future<bool> blockUser(String userId) async {
+    try {
+      await ApiClient.instance.post<dynamic>(
+        ApiEndpoints.feeds.blockUser(userId),
+      );
+      final blocked = userId.toUpperCase();
+      posts.removeWhere((p) => p.author.id.toUpperCase() == blocked);
+      SnackBarHelper.success("User blocked. You won't see their posts.");
+      return true;
+    } on dio.DioException catch (e) {
+      SnackBarHelper.error(_msg(e, fallback: 'Failed to block user'));
+      return false;
+    } catch (e) {
+      SnackBarHelper.error("Failed to block user: $e");
+      return false;
+    }
+  }
+
   Future<void> refreshPosts() async {
     await fetchFeeds(category: selectedCategory.value, page: 1);
     await fetchStats();

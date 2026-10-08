@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../utils/location_service.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/api_endpoints.dart';
@@ -380,10 +381,7 @@ class _LiveTripTrackingScreenState extends State<LiveTripTrackingScreen> {
         return;
       }
       _posStream = Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 10,
-        ),
+        locationSettings: LocationService.trackingSettings(),
       ).listen((pos) {
         _lastPos = pos;
         _pingLocation(pos);
