@@ -192,6 +192,7 @@ class _CalendarWidgetState extends State<CalendarWidget> {
           // Calendar Grid
           GridView.builder(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 7,

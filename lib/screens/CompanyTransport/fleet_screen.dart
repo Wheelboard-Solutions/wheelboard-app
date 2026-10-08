@@ -823,21 +823,6 @@ class _DriverCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(
-                            Iconsax.star1,
-                            size: 12,
-                            color: Color(0xFFF59E0B),
-                          ),
-                          const SizedBox(width: 3),
-                          const Text(
-                            '4.7',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: _textGrey,
-                              fontFamily: 'Poppins',
-                            ),
-                          ),
-                          const SizedBox(width: 10),
                           if (driver.vehicleType.isNotEmpty)
                             _tag(driver.vehicleType, const Color(0xFF8B5CF6)),
                           if (driver.experience.isNotEmpty) ...[

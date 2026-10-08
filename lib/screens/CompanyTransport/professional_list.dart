@@ -470,6 +470,7 @@ class _ProfessionalDetailsSheet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: ListView(
         shrinkWrap: true,
+        padding: EdgeInsets.zero,
         children: [
           Center(
             child: Container(

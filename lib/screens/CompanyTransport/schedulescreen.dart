@@ -499,6 +499,7 @@ class _ScheduleTripScreenState extends State<ScheduleTripScreen> {
         borderRadius: BorderRadius.circular(10)),
       child: ListView.separated(
         shrinkWrap: true,
+        padding: EdgeInsets.zero,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: list.length,
         separatorBuilder: (_, __) => const Divider(height: 1, color: _border),

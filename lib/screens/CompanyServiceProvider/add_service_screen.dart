@@ -820,6 +820,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             ),
             child: ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               itemCount: _suggestions.length,
               separatorBuilder: (_, __) =>
                   const Divider(height: 1, color: AppPalette.border),
@@ -863,6 +864,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       children: [
         GridView.builder(
           shrinkWrap: true,
+          padding: EdgeInsets.zero,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,

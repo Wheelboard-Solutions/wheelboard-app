@@ -234,23 +234,6 @@ class YourProfileScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Icon(Iconsax.star1, size: 14, color: Colors.amber),
-                    SizedBox(width: 4),
-                    Text(
-                      '4.7 / 5',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
               ],
             ),
           ),

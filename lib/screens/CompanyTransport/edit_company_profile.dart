@@ -399,6 +399,7 @@ class _EditCompanyProfileScreenState extends State<EditCompanyProfileScreen> {
             ),
             child: ListView.separated(
               shrinkWrap: true,
+              padding: EdgeInsets.zero,
               itemCount: _suggestions.length.clamp(0, 5),
               separatorBuilder: (_, __) =>
                   const Divider(height: 1, color: _border),

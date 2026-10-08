@@ -94,9 +94,8 @@ class AssignedTripController extends GetxController {
         return b == TripBucket.upcoming || b == TripBucket.inProcess;
       }).fold(0.0, (sum, t) => sum + earningsOf(t));
 
-  /// Rating from the stats endpoint (web default 4.8 until a profile/stats
-  /// endpoint supplies a real one).
-  double get rating => _apiRating.value ?? 4.8;
+  /// Rating from the stats endpoint; null until the driver has been rated.
+  double? get rating => _apiRating.value;
 
   /// Trips visible for the active filter (mirror web `filteredTrips`).
   List<AssignedTrip> get visibleTrips {

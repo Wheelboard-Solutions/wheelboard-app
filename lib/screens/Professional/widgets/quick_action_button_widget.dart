@@ -43,7 +43,9 @@ class QuickActionButtonWidget extends StatelessWidget {
             ...lines.map(
               (line) => Text(
                 line,
-                maxLines: 1,
+                // Six tiles share one row, so labels like "My Calendar" need
+                // to wrap rather than truncate to "My Cal…".
+                maxLines: lines.length == 1 ? 2 : 1,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: AppText.micro.on(Colors.white).size(10),

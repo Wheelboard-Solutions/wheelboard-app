@@ -97,6 +97,7 @@ class DashboardScreen extends StatelessWidget {
                     return GridView.count(
                       crossAxisCount: crossAxisCount,
                       shrinkWrap: true,
+                      padding: EdgeInsets.zero,
                       physics: const NeverScrollableScrollPhysics(),
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
