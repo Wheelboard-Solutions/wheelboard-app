@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../theme/design_system.dart';
 import '../../controllers/Professional/feeds_controller.dart';
 import '../../controllers/Transport/dashboard_controller.dart';
 import '../../controllers/Transport/job_controller.dart';
@@ -139,49 +140,43 @@ class _HomeScreenState extends State<HomeScreen>
       backgroundColor: _bg,
       body: FadeTransition(
         opacity: _fadeAnim,
-        child: CustomScrollView(
+        child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          slivers: [
-            _buildSliverHeader(),
-            SliverToBoxAdapter(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 20),
-                  _buildBanner(),
-                  const SizedBox(height: 16),
-                  _buildStatsStrip(),
-                  const SizedBox(height: 24),
-                  _buildQuickActions(),
-                  const SizedBox(height: 28),
-                  _buildRecentJobs(),
-                  const SizedBox(height: 28),
-                  _buildPopularFeeds(),
-                  const SizedBox(height: 100),
-                ],
-              ),
-            ),
-          ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 16),
+              _buildBanner(),
+              const SizedBox(height: 16),
+              _buildStatsStrip(),
+              const SizedBox(height: 24),
+              _buildQuickActions(),
+              const SizedBox(height: 28),
+              _buildRecentJobs(),
+              const SizedBox(height: 28),
+              _buildPopularFeeds(),
+              const SizedBox(height: 100),
+            ],
+          ),
         ),
       ),
       floatingActionButton: _buildFABs(),
     );
   }
 
-  // ── Sliver header ────────────────────────────────────────────────────────
+  // ── Header (brand gradient wrapper) ──────────────────────────────────────
 
-  Widget _buildSliverHeader() {
-    return SliverAppBar(
-      expandedHeight: 0,
-      pinned: true,
-      backgroundColor: _bg,
-      elevation: 0,
-      scrolledUnderElevation: 1,
-      shadowColor: _border,
-      automaticallyImplyLeading: false,
-      flexibleSpace: SafeArea(
+  Widget _buildHeader() {
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: AppPalette.brandGradient,
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+      ),
+      child: SafeArea(
+        bottom: false,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
           child: Obx(() {
             final profile = _profileCtrl.userProfile.value;
             final name = profile?.displayName ?? 'My Company';
@@ -191,38 +186,57 @@ class _HomeScreenState extends State<HomeScreen>
 
             return Row(
               children: [
-                // Avatar
+                // Avatar (perfect 1:1 circle shape)
                 GestureDetector(
                   onTap: () => Get.to(() => CompanyProfileScreen()),
                   child: Container(
-                    width: 44,
-                    height: 44,
+                    width: 48,
+                    height: 48,
                     decoration: BoxDecoration(
-                      color: _primaryLight,
                       shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.25),
                       border: Border.all(
-                        color: _primary.withValues(alpha: 0.25),
+                        color: Colors.white.withValues(alpha: 0.6),
                         width: 2,
                       ),
                     ),
-                    child: imgUrl.isNotEmpty
-                        ? ClipOval(
-                            child: Image.network(
+                    child: ClipOval(
+                      child: imgUrl.isNotEmpty
+                          ? Image.network(
                               imgUrl,
                               width: 44,
                               height: 44,
                               fit: BoxFit.cover,
                               headers: _authHeaders,
-                              errorBuilder: (_, __, ___) =>
-                                  _initialsWidget(initials, 44),
+                              errorBuilder: (_, __, ___) => Center(
+                                child: Text(
+                                  initials,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontFamily: 'Poppins',
+                                  ),
+                                ),
+                              ),
+                            )
+                          : Center(
+                              child: Text(
+                                initials,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontFamily: 'Poppins',
+                                ),
+                              ),
                             ),
-                          )
-                        : _initialsWidget(initials, 44),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
 
-                // Greeting
+                // Greeting & Name
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,19 +244,20 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       Text(
                         _greeting(),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: _textGrey,
+                          color: Colors.white.withValues(alpha: 0.85),
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         name,
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w700,
-                          color: _textDark,
+                          color: Colors.white,
                           fontFamily: 'Poppins',
                           letterSpacing: -0.2,
                         ),
@@ -265,12 +280,12 @@ class _HomeScreenState extends State<HomeScreen>
                           width: 44,
                           height: 44,
                           decoration: BoxDecoration(
-                            color: _primaryLight,
+                            color: Colors.white.withValues(alpha: 0.18),
                             borderRadius: BorderRadius.circular(13),
                           ),
                           child: const Icon(
                             Icons.notifications_outlined,
-                            color: _primary,
+                            color: Colors.white,
                             size: 22,
                           ),
                         ),
@@ -281,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Container(
                               padding: const EdgeInsets.all(3),
                               decoration: const BoxDecoration(
-                                color: _primary,
+                                color: AppPalette.amber,
                                 shape: BoxShape.circle,
                               ),
                               constraints: const BoxConstraints(
