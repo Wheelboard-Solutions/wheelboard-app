@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:get/get.dart';
 import 'package:geolocator/geolocator.dart';
+import '../../utils/location_service.dart';
 import 'package:dio/dio.dart';
 
 import '../../core/network/api_client.dart';
@@ -295,10 +296,7 @@ class TripNavigationController extends GetxController {
     if (perm == LocationPermission.deniedForever) return;
 
     _positionStream = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.high,
-        distanceFilter: 10,
-      ),
+      locationSettings: LocationService.trackingSettings(),
     ).listen((pos) {
       currentPosition.value = pos;
       _pingLocation(tripId, pos);

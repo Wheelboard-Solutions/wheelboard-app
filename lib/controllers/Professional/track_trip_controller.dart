@@ -10,6 +10,7 @@ import 'package:wheelboard/utils/app_logger.dart';
 import 'package:wheelboard/widgets/custom_snackbar.dart';
 import 'dart:async';
 import 'package:geolocator/geolocator.dart';
+import 'package:wheelboard/utils/location_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:geocoding/geocoding.dart' as geo;
@@ -86,10 +87,7 @@ class TrackTripController extends GetxController {
 
     _positionStream =
         Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
-          ),
+          locationSettings: LocationService.trackingSettings(),
         ).listen((Position position) {
           AppLogger.d(
             "📍 Position Stream Update: ${position.latitude}, ${position.longitude}",

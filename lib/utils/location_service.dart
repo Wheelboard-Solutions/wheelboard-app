@@ -1,9 +1,32 @@
+import 'package:flutter/foundation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import '../utils/app_logger.dart';
 
 /// Reusable Location Service for getting current location
 class LocationService {
+  /// Settings for continuous trip tracking streams.
+  ///
+  /// On iOS this keeps updates flowing while the app is backgrounded or the
+  /// phone is locked (requires the `location` UIBackgroundMode in Info.plist)
+  /// and shows the blue status-bar indicator so the driver knows tracking is on.
+  static LocationSettings trackingSettings({int distanceFilter = 10}) {
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+      return AppleSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: distanceFilter,
+        activityType: ActivityType.automotiveNavigation,
+        pauseLocationUpdatesAutomatically: false,
+        allowBackgroundLocationUpdates: true,
+        showBackgroundLocationIndicator: true,
+      );
+    }
+    return LocationSettings(
+      accuracy: LocationAccuracy.high,
+      distanceFilter: distanceFilter,
+    );
+  }
+
   /// Get current location coordinates
   static Future<Position?> getCurrentPosition() async {
     try {
