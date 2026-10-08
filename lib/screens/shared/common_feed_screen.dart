@@ -332,6 +332,7 @@ class _FeedPostCardState extends State<_FeedPostCard> {
       icon: const Icon(Icons.more_horiz, size: 20, color: Colors.grey),
       onSelected: (value) {
         if (value == 'report') _showReportDialog();
+        if (value == 'block') _confirmBlock();
         if (value == 'edit') _showEditDialog();
         if (value == 'delete') _confirmDelete();
       },
@@ -342,6 +343,7 @@ class _FeedPostCardState extends State<_FeedPostCard> {
             ]
           : const [
               PopupMenuItem(value: 'report', child: Text('Report')),
+              PopupMenuItem(value: 'block', child: Text('Block user')),
             ],
     );
   }
@@ -574,6 +576,27 @@ class _FeedPostCardState extends State<_FeedPostCard> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _confirmBlock() {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Block ${post.author.name}?'),
+        content: const Text(
+          "You won't see their posts or comments in your feed.",
+        ),
+        actions: [
+          TextButton(onPressed: () => Get.back(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.blockUser(post.author.id);
+            },
+            child: const Text('Block', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

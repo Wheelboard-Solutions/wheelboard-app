@@ -102,14 +102,18 @@ class _FleetVehiclesScreenState extends State<FleetVehiclesScreen>
       elevation: 0,
       scrolledUnderElevation: 1,
       shadowColor: _border,
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back_ios_new_rounded,
-          size: 20,
-          color: _textDark,
-        ),
-        onPressed: () => Get.back(),
-      ),
+      // Also used as a bottom-nav tab, where there is nothing to go back to.
+      automaticallyImplyLeading: false,
+      leading: ModalRoute.of(context)?.canPop ?? false
+          ? IconButton(
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 20,
+                color: _textDark,
+              ),
+              onPressed: () => Get.back(),
+            )
+          : null,
       title: const Text(
         'Fleet Management',
         style: TextStyle(
