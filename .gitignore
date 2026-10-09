@@ -26,3 +26,7 @@ ios/Pods/
 # FCM firebase messaging service
 ios/Runner/GoogleService-Info.plist
 android/app/google-services.json
+
+# Apple signing / push keys — never commit
+*.p8
+AuthKey_*
