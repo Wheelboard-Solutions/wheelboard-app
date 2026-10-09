@@ -20,6 +20,7 @@ import '../Professional/KYC/kyc_screen.dart';
 import '../../widgets/language_selection_bottom_sheet.dart';
 import '../../core/localization/localization_service.dart';
 import 'edit_company_profile.dart';
+import '../../utils/platform_features.dart';
 import 'switch_profile_popup.dart';
 
 
@@ -80,7 +81,7 @@ class CompanyProfileScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildPlatformPreferences(ctrl),
                   const SizedBox(height: 12),
-                  _buildSubscriptionCard(),
+                  if (paidPlansAvailable) _buildSubscriptionCard(),
                   const SizedBox(height: 12),
                   _buildQuickActions(context, profile),
                   const SizedBox(height: 12),

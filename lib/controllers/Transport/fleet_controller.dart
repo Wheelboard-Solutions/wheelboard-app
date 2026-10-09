@@ -11,6 +11,7 @@ import '../../services/fleet_payment_service.dart';
 import '../../services/profile_service.dart';
 import '../../services/verification_service.dart';
 import '../../utils/app_logger.dart';
+import '../../utils/platform_features.dart';
 import '../../widgets/custom_snackbar.dart';
 
 /// Outcome of an automatic RC verification attempt, as the Add-Vehicle UI sees
@@ -367,7 +368,7 @@ class DriverController extends GetxController {
       '[Fleet 402] driver | upgradeRequired=$upgradeRequired | data=$responseData',
     );
 
-    if (upgradeRequired) {
+    if (upgradeRequired || !paidPlansAvailable) {
       final limit = (responseData['limit'] as num?)?.toInt() ?? 0;
       showFleetUpgradeLimitDialog(resourceType: 'driver', limit: limit);
       return;
@@ -779,7 +780,7 @@ class DriverController extends GetxController {
       '[Fleet 402] vehicle | upgradeRequired=$upgradeRequired | data=$responseData',
     );
 
-    if (upgradeRequired) {
+    if (upgradeRequired || !paidPlansAvailable) {
       final limit = (responseData['limit'] as num?)?.toInt() ?? 0;
       showFleetUpgradeLimitDialog(resourceType: 'vehicle', limit: limit);
       return;
