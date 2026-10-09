@@ -25,6 +25,7 @@ import 'job_form_screen.dart';
 import 'job_screen.dart';
 import 'notification_screen.dart';
 import 'hired_professionals_screen.dart';
+import '../../utils/platform_features.dart';
 import 'services_screen.dart';
 
 // ─── Design tokens ─────────────────────────────────────────────────────────
@@ -59,7 +60,12 @@ class _HomeScreenState extends State<HomeScreen>
   late NotificationController _notifCtrl;
   late DashboardController _dashCtrl;
 
-  static const _menuItems = [
+  static final _menuItems = paidPlansAvailable
+      ? _allMenuItems
+      : _allMenuItems.sublist(0, _allMenuItems.length - 1);
+
+  // Subscription is the last item; it is dropped on iOS (see paidPlansAvailable).
+  static const _allMenuItems = [
     _MenuItem('Vehicles', Iconsax.truck, Icons.directions_car_rounded),
     _MenuItem('Professionals', Iconsax.people, Icons.people_outline_rounded),
     _MenuItem(

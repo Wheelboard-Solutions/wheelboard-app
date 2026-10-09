@@ -20,6 +20,7 @@ import '../../shared/wallet_screen.dart';
 import '../../shared/issues/issues_screen.dart';
 import '../../shared/legal_screen.dart';
 import '../../../widgets/language_selection_bottom_sheet.dart';
+import '../../../utils/platform_features.dart';
 import '../../../core/localization/localization_service.dart';
 
 
@@ -84,7 +85,7 @@ class YourProfileScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildWalletCard(),
                   const SizedBox(height: 12),
-                  _buildSubscriptionCard(),
+                  if (paidPlansAvailable) _buildSubscriptionCard(),
                   const SizedBox(height: 12),
                   _buildQuickActions(context),
                   const SizedBox(height: 12),

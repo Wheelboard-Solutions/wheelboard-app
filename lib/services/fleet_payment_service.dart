@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../utils/app_logger.dart';
+import '../utils/platform_features.dart';
 import '../widgets/custom_snackbar.dart';
 
 /// Handles the Razorpay payment flow triggered by a 402 response when adding
@@ -39,8 +40,12 @@ class FleetPaymentService {
 
   /// Called when Razorpay reports a successful payment.
   /// The caller should retry the fleet resource creation with the provided proof.
-  final Future<void> Function(String orderId, String paymentId, String signature)
-      onPaymentSuccess;
+  final Future<void> Function(
+    String orderId,
+    String paymentId,
+    String signature,
+  )
+  onPaymentSuccess;
 
   /// Called when the payment fails or is dismissed by the user.
   final void Function(String message) onPaymentError;
@@ -70,10 +75,10 @@ class FleetPaymentService {
     final currency = orderData['currency']?.toString() ?? 'INR';
 
     if (orderId.isEmpty || razorpayKey.isEmpty) {
-      AppLogger.e('[FleetPaymentService] Missing orderId or razorpayKey in 402 data: $orderData');
-      onPaymentError(
-        'Payment details could not be loaded. Please try again.',
+      AppLogger.e(
+        '[FleetPaymentService] Missing orderId or razorpayKey in 402 data: $orderData',
       );
+      onPaymentError('Payment details could not be loaded. Please try again.');
       return;
     }
 
@@ -136,13 +141,17 @@ class FleetPaymentService {
       return;
     }
     final message = response.message ?? 'Payment failed. Please try again.';
-    AppLogger.e('[FleetPaymentService] Payment error code=${response.code}: $message');
+    AppLogger.e(
+      '[FleetPaymentService] Payment error code=${response.code}: $message',
+    );
     onPaymentError(message);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
     _pendingOrderId = null;
-    AppLogger.d('[FleetPaymentService] External wallet: ${response.walletName}');
+    AppLogger.d(
+      '[FleetPaymentService] External wallet: ${response.walletName}',
+    );
   }
 
   /// Must be called when the parent widget / controller is disposed.
@@ -176,8 +185,11 @@ void showFleetUpgradeLimitDialog({
               color: const Color(0xFFFFF1F1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(Icons.lock_outline_rounded,
-                color: Color(0xFFF36969), size: 20),
+            child: const Icon(
+              Icons.lock_outline_rounded,
+              color: Color(0xFFF36969),
+              size: 20,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -208,9 +220,11 @@ void showFleetUpgradeLimitDialog({
             ),
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Upgrade your subscription to add more resources.',
-            style: TextStyle(
+          Text(
+            paidPlansAvailable
+                ? 'Upgrade your subscription to add more resources.'
+                : 'Your current plan does not allow more. Contact Wheelboard to change your plan.',
+            style: const TextStyle(
               fontSize: 13,
               fontFamily: 'Poppins',
               color: Color(0xFF6B7280),
@@ -222,8 +236,8 @@ void showFleetUpgradeLimitDialog({
       actions: [
         TextButton(
           onPressed: () => Get.back(),
-          child: const Text(
-            'Later',
+          child: Text(
+            paidPlansAvailable ? 'Later' : 'OK',
             style: TextStyle(
               color: Color(0xFF6B7280),
               fontFamily: 'Poppins',
@@ -231,30 +245,31 @@ void showFleetUpgradeLimitDialog({
             ),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            Get.back();
-            // Navigate to the subscriptions screen
-            Get.toNamed('/subscriptions');
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFF36969),
-            foregroundColor: Colors.white,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+        if (paidPlansAvailable)
+          ElevatedButton(
+            onPressed: () {
+              Get.back();
+              // Navigate to the subscriptions screen
+              Get.toNamed('/subscriptions');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFF36969),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              elevation: 0,
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            elevation: 0,
-          ),
-          child: const Text(
-            'Upgrade Plan',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+            child: const Text(
+              'Upgrade Plan',
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
             ),
           ),
-        ),
       ],
     ),
     barrierDismissible: true,

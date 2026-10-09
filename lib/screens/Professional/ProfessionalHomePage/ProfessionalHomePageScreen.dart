@@ -22,6 +22,7 @@ import '../widgets/banner_header_widget.dart';
 import '../widgets/job_card_widget.dart';
 import '../widgets/professional_header_widget.dart';
 import '../widgets/quick_action_button_widget.dart';
+import '../../../utils/platform_features.dart';
 import '../widgets/trip_card_widget.dart';
 
 /// Professional home — modern, brand-consistent, robust flow layout.
@@ -144,10 +145,12 @@ class ProfessionalHomePageScreen extends StatelessWidget {
           AppSpacing.hGapSm,
           action(Iconsax.teacher, 'My Learning'.tr,
               () => Get.to(const MyLearningScreen())),
-          AppSpacing.hGapSm,
-          action(Iconsax.card, 'My Plans'.tr,
-              () => Get.to(() =>
-                  const SubscriptionScreen(category: 'professional'))),
+          if (paidPlansAvailable) ...[
+            AppSpacing.hGapSm,
+            action(Iconsax.card, 'My Plans'.tr,
+                () => Get.to(() =>
+                    const SubscriptionScreen(category: 'professional'))),
+          ],
         ],
       ),
     );

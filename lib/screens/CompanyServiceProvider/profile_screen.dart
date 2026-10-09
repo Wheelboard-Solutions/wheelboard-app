@@ -26,6 +26,7 @@ import '../shared/legal_screen.dart';
 import '../../widgets/language_selection_bottom_sheet.dart';
 import '../../core/localization/localization_service.dart';
 
+import '../../utils/platform_features.dart';
 import '../Professional/KYC/kyc_screen.dart';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
@@ -85,7 +86,7 @@ class ServiceProviderProfileScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   _buildWalletCard(),
                   const SizedBox(height: 12),
-                  _buildSubscriptionCard(),
+                  if (paidPlansAvailable) _buildSubscriptionCard(),
                   const SizedBox(height: 12),
                   _buildQuickActions(context, profile),
                   const SizedBox(height: 12),
