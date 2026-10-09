@@ -97,7 +97,7 @@ class _CompanyServiceProviderMainWrapperState
           if (_currentIndex == 0)
             const WheelbotFloatingButton(
               roleContext: 'serviceProvider',
-              bottom: 180,
+              bottom: 100,
             ),
         ],
       ),
