@@ -13,6 +13,7 @@ import '../../models/add_new_trip_model.dart';
 import '../../utils/constants.dart';
 import '../../utils/app_logger.dart';
 import '../../widgets/custom_snackbar.dart';
+import 'recurring/recurring_trip_form_screen.dart';
 
 // ── Design tokens (match Home & Fleet) ────────────────────────────────────────
 const _primary   = Color(0xFFF36969);
@@ -96,6 +97,8 @@ class _NewTripScreenState extends State<Newtripscreen> {
             icon: Iconsax.box,
             title: 'Create a New Trip',
             subtitle: 'Post a trip and receive bids from professionals.'),
+          const SizedBox(height: 12),
+          _repeatTripLink(),
           const SizedBox(height: 16),
 
           _sectionCard(title: 'Vehicle', icon: Iconsax.truck, child: _vehicleDropdown()),
@@ -309,6 +312,25 @@ class _NewTripScreenState extends State<Newtripscreen> {
             fontSize: 12, color: Colors.white.withValues(alpha: 0.85))),
         ])),
       ]),
+    );
+  }
+
+  Widget _repeatTripLink() {
+    return GestureDetector(
+      onTap: () => Get.off(() => const RecurringTripFormScreen()),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xFFFFF1F1), borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: _primary.withValues(alpha: 0.3))),
+        child: Row(children: [
+          const Icon(Iconsax.repeat, size: 18, color: _primary),
+          const SizedBox(width: 10),
+          Expanded(child: Text('Same route every day or week? Make it a repeat trip',
+            style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600, color: _textDark))),
+          const Icon(Icons.arrow_forward_ios_rounded, size: 14, color: _primary),
+        ]),
+      ),
     );
   }
 

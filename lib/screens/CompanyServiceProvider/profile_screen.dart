@@ -28,6 +28,7 @@ import '../../core/localization/localization_service.dart';
 
 import '../../utils/platform_features.dart';
 import '../Professional/KYC/kyc_screen.dart';
+import 'referral/sp_referral_screen.dart';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const _primary = Color(0xFFF36969);
@@ -85,6 +86,8 @@ class ServiceProviderProfileScreen extends StatelessWidget {
                   _buildPlatformPreferences(ctrl),
                   const SizedBox(height: 12),
                   _buildWalletCard(),
+                  const SizedBox(height: 12),
+                  _buildReferralCard(),
                   const SizedBox(height: 12),
                   if (paidPlansAvailable) _buildSubscriptionCard(),
                   const SizedBox(height: 12),
@@ -848,16 +851,38 @@ class ServiceProviderProfileScreen extends StatelessWidget {
 
   // ── Wallet / Earnings ──────────────────────────────────────────────────────
 
-  Widget _buildWalletCard() {
+  Widget _buildWalletCard() => _buildLinkCard(
+        onTap: () => Get.to(() => const WalletScreen()),
+        colors: const [Color(0xFF16A34A), Color(0xFF15803D)],
+        icon: Iconsax.wallet_3,
+        title: 'My Earnings',
+        subtitle: 'View wallet balance & claim earnings',
+      );
+
+  Widget _buildReferralCard() => _buildLinkCard(
+        onTap: () => Get.to(() => const SpReferralScreen()),
+        colors: const [Color(0xFF7C3AED), Color(0xFF6D28D9)],
+        icon: Iconsax.gift,
+        title: 'Refer & Earn',
+        subtitle: 'Invite garages, earn bonuses & commission',
+      );
+
+  Widget _buildLinkCard({
+    required VoidCallback onTap,
+    required List<Color> colors,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
     return GestureDetector(
-      onTap: () => Get.to(() => const WalletScreen()),
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF16A34A), Color(0xFF15803D)],
+            gradient: LinearGradient(
+              colors: colors,
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -872,27 +897,26 @@ class ServiceProviderProfileScreen extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child:
-                    const Icon(Iconsax.wallet_3, size: 24, color: Colors.white),
+                child: Icon(icon, size: 24, color: Colors.white),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'My Earnings',
-                      style: TextStyle(
+                      title,
+                      style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
                         fontFamily: 'Poppins',
                       ),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
-                      'View wallet balance & claim earnings',
-                      style: TextStyle(
+                      subtitle,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: Colors.white70,
                         fontFamily: 'Poppins',
