@@ -17,6 +17,7 @@ import '../shared/live_trip_tracking_screen.dart';
 import 'pod/PodViewScreen.dart';
 import 'share/share_navigation_sheet.dart';
 import 'lr/lr_generate_screen.dart';
+import 'recurring/recurring_trips_screen.dart';
 import 'package:wheelboard/core/auth/auth_service.dart';
 
 // ── Design tokens (exact match to Home & Fleet) ───────────────────────────────
@@ -189,6 +190,8 @@ class _TripPageState extends State<TripPage>
               _fab(label: 'Post Trip',  icon: Iconsax.add_circle, onTap: () => Get.to(() => const Newtripscreen())),
               const SizedBox(height: 8),
               _fab(label: 'Schedule',   icon: Iconsax.calendar_1,  onTap: () => Get.to(() => const ScheduleTripScreen())),
+              const SizedBox(height: 8),
+              _fab(label: 'Repeat',     icon: Iconsax.repeat,      onTap: () => Get.to(() => const RecurringTripsScreen())),
             ],
           );
         }),

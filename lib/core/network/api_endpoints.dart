@@ -79,6 +79,56 @@ class ApiEndpoints {
 
   // ── WheelBot AI Assistant ────────────────────────────────────────────────
   static const chat = _ChatEndpoints();
+
+  // ── Service-partner referral programme ───────────────────────────────────
+  static const referralProgram = _ReferralProgramEndpoints();
+
+  // ── Repeat trips (trip templates) ────────────────────────────────────────
+  static const tripTemplates = _TripTemplateEndpoints();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Referral programme — Service Provider refer & earn
+// ─────────────────────────────────────────────────────────────────────────────
+class _ReferralProgramEndpoints {
+  const _ReferralProgramEndpoints();
+
+  // GET  /referral-program/settings  → current rates (admin-editable)
+  String get settings => '/referral-program/settings';
+
+  // GET  /referral-program/my-code
+  String get myCode => '/referral-program/my-code';
+
+  // GET  /referral-program/my-referrals  → { code, summary, partners[] }
+  String get myReferrals => '/referral-program/my-referrals';
+
+  // GET  /referral-program/referred-by
+  String get referredBy => '/referral-program/referred-by';
+
+  // POST /referral-program/apply-code  { code }
+  String get applyCode => '/referral-program/apply-code';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Repeat trips — fixed routes that auto-create trips ahead of each run
+// ─────────────────────────────────────────────────────────────────────────────
+class _TripTemplateEndpoints {
+  const _TripTemplateEndpoints();
+
+  // GET  /trip-templates   POST /trip-templates
+  String get list => '/trip-templates';
+  String get create => '/trip-templates';
+
+  // GET / PATCH / DELETE /trip-templates/:id
+  String byId(String id) => '/trip-templates/$id';
+
+  // POST /trip-templates/:id/pause | resume
+  String pause(String id) => '/trip-templates/$id/pause';
+  String resume(String id) => '/trip-templates/$id/resume';
+
+  // POST /trip-templates/:id/skip | unskip  { date: YYYY-MM-DD }
+  String skip(String id) => '/trip-templates/$id/skip';
+  String unskip(String id) => '/trip-templates/$id/unskip';
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
