@@ -262,6 +262,14 @@ class _FleetEndpoints {
   // GET    /fleet/vehicles/:id/gps-history
   String vehicleGpsHistory(String id) => '/fleet/vehicles/$id/gps-history';
 
+  // Owner-scoped iTriangle tracker status and named commands.
+  String vehicleTracker(String id) => '/fleet/vehicles/$id/tracker';
+  String vehicleTrackerCommands(String id) =>
+      '/fleet/vehicles/$id/tracker/commands';
+
+  // Recent tracker events and alerts for this vehicle.
+  String vehicleEvents(String id) => '/fleet/vehicles/$id/events';
+
   // PUT    /fleet/vehicles/:id
   String updateVehicle(String id) => '/fleet/vehicles/$id';
 
