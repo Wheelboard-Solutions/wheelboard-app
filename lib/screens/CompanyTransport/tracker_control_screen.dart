@@ -102,7 +102,7 @@ class _TrackerControlScreenState extends State<TrackerControlScreen> {
       }
       _notice(
         action == 'read_settings'
-            ? 'Tracker settings updated'
+            ? 'Tracker settings received'
             : 'Tracker acknowledged the command',
       );
       await _refresh();
@@ -174,10 +174,20 @@ class _TrackerControlScreenState extends State<TrackerControlScreen> {
 
   Widget _setting(String label, String key, String unit) {
     final value = _settings[key];
+    final display = key == '176'
+        ? switch (value) {
+            '4' => 'Mobilised',
+            '5' => 'Immobilisation requested',
+            null => '—',
+            _ => value,
+          }
+        : value == null
+        ? '—'
+        : '$value$unit';
     return ListTile(
       dense: true,
       title: Text(label),
-      trailing: Text(value == null ? '—' : '$value$unit'),
+      trailing: Text(display),
     );
   }
 
