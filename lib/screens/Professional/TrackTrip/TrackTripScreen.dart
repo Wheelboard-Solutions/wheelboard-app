@@ -1304,6 +1304,15 @@ class _TrackTripScreenState extends State<TrackTripScreen>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(_stepHeadline(step), style: AppText.h2),
+                          if (!kIsWeb &&
+                              defaultTargetPlatform == TargetPlatform.iOS &&
+                              (step == TripStep.navigatingToPickup ||
+                                  step == TripStep.atPickup ||
+                                  step == TripStep.inTransit))
+                            Text(
+                              'Location updates while Wheelboard is open',
+                              style: AppText.caption,
+                            ),
                           if (trip.vehicleNumber.isNotEmpty)
                             Text(
                               '${trip.vehicleNumber}${trip.vehicleModel.isNotEmpty ? " • ${trip.vehicleModel}" : ""}',
