@@ -14,6 +14,7 @@ import '../../widgets/custom_snackbar.dart';
 import '../../widgets/skeletons.dart';
 import '../../widgets/smart_image.dart';
 import 'Lease/create_lease_wizard.dart';
+import 'tracker_control_screen.dart';
 
 const _primary = Color(0xFFF36969);
 const _primaryLight = Color(0xFFFFF1F1);
@@ -721,6 +722,23 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         'Route Points',
         _gpsLoading ? 'Loading...' : '${_gpsPoints.length}',
       ),
+      if (gps.providerCode.toLowerCase() == 'itriangle')
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
+          child: SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                builder: (_) => TrackerControlScreen(
+                  vehicleId: v.vehicleId,
+                  vehicleName: v.vehicleNumber,
+                ),
+              )),
+              icon: const Icon(Icons.settings_remote),
+              label: const Text('iTriangle tracker controls'),
+            ),
+          ),
+        ),
       if (hasLocation)
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 14),
