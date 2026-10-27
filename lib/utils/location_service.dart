@@ -7,9 +7,7 @@ import '../utils/app_logger.dart';
 class LocationService {
   /// Settings for continuous trip tracking streams.
   ///
-  /// On iOS this keeps updates flowing while the app is backgrounded or the
-  /// phone is locked (requires the `location` UIBackgroundMode in Info.plist)
-  /// and shows the blue status-bar indicator so the driver knows tracking is on.
+  /// On iOS, trip location updates run only while the app is in use.
   static LocationSettings trackingSettings({int distanceFilter = 10}) {
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
       return AppleSettings(
@@ -17,8 +15,8 @@ class LocationService {
         distanceFilter: distanceFilter,
         activityType: ActivityType.automotiveNavigation,
         pauseLocationUpdatesAutomatically: false,
-        allowBackgroundLocationUpdates: true,
-        showBackgroundLocationIndicator: true,
+        allowBackgroundLocationUpdates: false,
+        showBackgroundLocationIndicator: false,
       );
     }
     return LocationSettings(
