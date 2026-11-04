@@ -29,6 +29,7 @@ import '../../core/localization/localization_service.dart';
 import '../../utils/platform_features.dart';
 import '../Professional/KYC/kyc_screen.dart';
 import 'referral/sp_referral_screen.dart';
+import '../../widgets/partner_qr_card.dart';
 
 // ── Design tokens ────────────────────────────────────────────────────────────
 const _primary = Color(0xFFF36969);
@@ -88,6 +89,8 @@ class ServiceProviderProfileScreen extends StatelessWidget {
                   _buildWalletCard(),
                   const SizedBox(height: 12),
                   _buildReferralCard(),
+                  const SizedBox(height: 12),
+                  const PartnerQrCard(),
                   const SizedBox(height: 12),
                   if (paidPlansAvailable) _buildSubscriptionCard(),
                   const SizedBox(height: 12),

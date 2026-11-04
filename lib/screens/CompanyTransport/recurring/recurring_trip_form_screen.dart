@@ -10,6 +10,7 @@ import '../../../services/trip_template_service.dart';
 import '../../../theme/app_palette.dart';
 import '../../../utils/app_logger.dart';
 import '../../../utils/constants.dart';
+import '../../../utils/location_service.dart';
 import '../../../widgets/custom_snackbar.dart';
 import '../newtripscreen.dart' show PlacesService, Suggestion;
 
@@ -52,7 +53,6 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
   final _places = PlacesService(apiKey: MapsConstants.googleMapsApiKey);
 
   final _name = TextEditingController();
-  final _pay = TextEditingController();
   late final _Place _pickup;
   late final _Place _drop;
   final List<_Place> _stops = [];
@@ -67,6 +67,7 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
   DateTime _startDate = DateTime.now();
   DateTime? _endDate;
   bool _saving = false;
+  bool _locating = false;
 
   bool get _editing => widget.template != null;
 
@@ -81,7 +82,6 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
     _drop = _Place(t?.end);
     if (t != null) {
       _name.text = t.name;
-      _pay.text = t.expectedPay != null ? t.expectedPay!.round().toString() : '';
       _stops.addAll(t.stops.map(_Place.new));
       _vehicleId = t.vehicleId;
       _driverId = t.driverModel == 'Driver' ? t.driverId : null;
@@ -111,7 +111,6 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
   @override
   void dispose() {
     _name.dispose();
-    _pay.dispose();
     for (final p in [_pickup, _drop, ..._stops]) {
       p.ctrl.dispose();
     }
@@ -136,6 +135,8 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
       err = 'Give this repeat trip a name';
     } else if (_vehicleId == null) {
       err = 'Select a vehicle';
+    } else if (_driverId == null) {
+      err = 'Select a driver';
     } else if (!_pickup.resolved || !_drop.resolved) {
       err = 'Pick pickup and drop locations from the suggestions';
     } else if (_stops.any((s) => !s.resolved)) {
@@ -152,7 +153,6 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
       return;
     }
 
-    final pay = double.tryParse(_pay.text.trim());
     final sortedDates = [..._dates]..sort();
     final body = <String, dynamic>{
       'name': _name.text.trim(),
@@ -170,17 +170,8 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
       'startDate': _repeat == 'dates' ? _ymd(sortedDates.first) : _ymd(_startDate),
       if (_repeat != 'dates' && _endDate != null) 'endDate': _ymd(_endDate!),
     };
-    if (_driverId != null) {
-      body['driverId'] = _driverId;
-      body['driverModel'] = 'Driver';
-    } else if (_editing) {
-      body['driverId'] = null;
-    }
-    if (pay != null) {
-      body['expectedPay'] = pay;
-    } else if (_editing) {
-      body['expectedPay'] = null;
-    }
+    body['driverId'] = _driverId;
+    body['driverModel'] = 'Driver';
     if (_editing && _repeat != 'dates' && _endDate == null) body['endDate'] = null;
 
     setState(() => _saving = true);
@@ -225,6 +216,8 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
           const SizedBox(height: 14),
           _section('Route', Iconsax.routing, Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             _placeField('Pickup', _pickup),
+            const SizedBox(height: 8),
+            _currentLocationButton(),
             const SizedBox(height: 12),
             for (var i = 0; i < _stops.length; i++) ...[
               _placeField('Stop ${i + 1}', _stops[i], onRemove: () => setState(() {
@@ -255,9 +248,7 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
             Expanded(child: _durationDropdown()),
           ])),
           const SizedBox(height: 14),
-          _section('Driver pay (₹ per trip)', Iconsax.money_4,
-            _input(_pay, 'Optional', keyboard: TextInputType.number)),
-          const SizedBox(height: 24),
+          const SizedBox(height: 10),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(
@@ -451,6 +442,51 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
     ]);
   }
 
+  /// Same behaviour as "Use Current Location" on the single-trip screen.
+  Future<void> _useCurrentLocation() async {
+    setState(() => _locating = true);
+    try {
+      final position = await LocationService.getCurrentPosition();
+      final address = position != null
+          ? await LocationService.getAddressFromCoordinates(position.latitude, position.longitude)
+          : null;
+      if (!mounted) return;
+      if (position != null && address != null && address.isNotEmpty) {
+        setState(() {
+          _pickup.query++;
+          _pickup.ctrl.text = address;
+          _pickup.lat = position.latitude;
+          _pickup.lng = position.longitude;
+          _pickup.suggestions = [];
+        });
+      } else {
+        SnackBarHelper.error('Could not get current location. Check permissions.');
+      }
+    } catch (_) {
+      SnackBarHelper.error('Failed to get location');
+    } finally {
+      if (mounted) setState(() => _locating = false);
+    }
+  }
+
+  Widget _currentLocationButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _locating ? null : _useCurrentLocation,
+        icon: _locating
+            ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+            : const Icon(Iconsax.gps, size: 16),
+        label: Text(_locating ? 'Getting location…' : 'Use Current Location',
+          style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: _primary, side: const BorderSide(color: _primary),
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+      ),
+    );
+  }
+
   Widget _vehicleDropdown() {
     return Obx(() {
       if (_fleet.isVehicleLoading.value) {
@@ -471,15 +507,12 @@ class _RecurringTripFormScreenState extends State<RecurringTripFormScreen> {
 
   Widget _driverDropdown() {
     return Obx(() {
-      final items = <DropdownMenuItem<String?>>[
-        DropdownMenuItem(value: null, child: Text('No driver (open for bids)',
-          style: GoogleFonts.poppins(fontSize: 14, color: _textGrey))),
-        ..._fleet.drivers.map((d) => DropdownMenuItem(value: d.driverId, child: Text(
+      final items = _fleet.drivers.map((d) => DropdownMenuItem<String>(value: d.driverId, child: Text(
           d.fullName, overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(fontSize: 14, color: _textDark)))),
-      ];
+          style: GoogleFonts.poppins(fontSize: 14, color: _textDark)))).toList();
       final value = _fleet.drivers.any((d) => d.driverId == _driverId) ? _driverId : null;
-      return _dropdown<String?>('Driver', value, items, (v) => setState(() => _driverId = v));
+      return _dropdown<String>('Driver', value, items, (v) => setState(() => _driverId = v),
+        hint: items.isEmpty ? 'No drivers. Add one first.' : 'Select driver');
     });
   }
 
