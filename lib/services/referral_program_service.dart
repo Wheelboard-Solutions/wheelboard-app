@@ -13,6 +13,12 @@ class ReferralProgramService {
     return data is Map ? ReferralRates.fromJson(Map<String, dynamic>.from(data)) : ReferralRates.defaults;
   }
 
+  /// `{ code, partnerId, link }`. The QR encodes `link`; the admin page shows the same one.
+  Future<Map<String, dynamic>> getShareInfo() async {
+    final data = await _get(ApiEndpoints.referralProgram.myCode, 'Failed to load your QR code');
+    return data is Map ? Map<String, dynamic>.from(data) : <String, dynamic>{};
+  }
+
   Future<MyReferrals> getMyReferrals() async {
     final data = await _get(ApiEndpoints.referralProgram.myReferrals, 'Failed to load referrals');
     return MyReferrals.fromJson(Map<String, dynamic>.from(data as Map));

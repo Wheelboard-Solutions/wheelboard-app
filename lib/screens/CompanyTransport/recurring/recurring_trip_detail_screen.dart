@@ -171,7 +171,7 @@ class _RecurringTripDetailScreenState extends State<RecurringTripDetailScreen> {
           ? t.dates.join(', ')
           : '${t.startDate} → ${t.endDate ?? 'no end date'}'),
       _line(Iconsax.truck, 'Vehicle', t.vehicleNumber ?? t.vehicleId),
-      _line(Iconsax.user, 'Driver', t.driverName ?? (t.driverId == null ? 'Open for bids' : 'Assigned')),
+      _line(Iconsax.user, 'Driver', t.driverName ?? (t.driverId == null ? 'Not assigned' : 'Assigned')),
       if (t.expectedPay != null) _line(Iconsax.money_4, 'Pay', '₹${t.expectedPay!.round()} per trip'),
     ]));
   }
